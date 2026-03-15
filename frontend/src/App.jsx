@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import StoryboardPanel from "./components/StoryboardPanel";
 import BeatMap from "./components/BeatMap";
 import DirectorNote from "./components/DirectorNote";
@@ -55,7 +55,7 @@ const TIMEOUTS = {
   revise:   300_000,
 };
 
-async function apiFetch(path, options = {}, timeoutMs = 60_000) {
+async function apiFetch(path, options = {}, timeoutMs = 300_000) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
@@ -88,6 +88,13 @@ function readFileAsBase64(file) {
 }
 
 export default function App() {
+  const [theme, setTheme] = useState(() => localStorage.getItem("theme") || "dark");
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+
   const [appState,    setAppState]    = useState(STATES.IDLE);
   const [sceneInput,  setSceneInput]  = useState("");
   const [clarifyCtx,  setClarifyCtx]  = useState(null);
@@ -183,12 +190,12 @@ export default function App() {
   // Voice for pitch textarea
   const toggleVoice = useCallback(() => {
     setInputModality("voice");
-    startVoice((t) => setSceneInput((prev) => (prev ? prev + " " + t : t)));
+    startVoice((t) => setSceneInput(t));
   }, [startVoice]);
 
   // Voice for clarify answer textarea
   const toggleVoiceClarify = useCallback(() => {
-    startVoice((t) => setClarifyAns((prev) => (prev ? prev + " " + t : t)));
+    startVoice((t) => setClarifyAns(t));
   }, [startVoice]);
 
   // ── Step 1: Clarify ────────────────────────────────────────────────────────
@@ -467,11 +474,20 @@ export default function App() {
             <div className="logo-sub">Gemini Live Agent Challenge · Creative Storyteller</div>
           </div>
         </div>
-        {scene && (
-          <span className="scene-id-badge">
-            SCENE {scene.scene_id.slice(0, 8).toUpperCase()}
-          </span>
-        )}
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          {scene && (
+            <span className="scene-id-badge">
+              SCENE {scene.scene_id.slice(0, 8).toUpperCase()}
+            </span>
+          )}
+          <button
+            className="theme-toggle"
+            onClick={() => setTheme(t => t === "dark" ? "light" : "dark")}
+            title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+          >
+            {theme === "dark" ? "☀" : "☾"}
+          </button>
+        </div>
       </header>
 
       {error && (
@@ -700,6 +716,7 @@ export default function App() {
                 {panel.video_url ? (
                   <>
                     <video
+                      key={panel.video_url}
                       className={`hero-video ${isRegenPanel ? "regenerating" : ""}`}
                       src={panel.video_url}
                       controls

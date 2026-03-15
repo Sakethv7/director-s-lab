@@ -55,6 +55,7 @@ export default function FinalEditPanel({
         </div>
         {panel.video_url && (
           <video
+            key={panel.video_url}
             className="final-preview-video"
             src={panel.video_url}
             controls

@@ -1,13 +1,13 @@
 /* Director's Lab — Wong Kar Wai Cinematic UI */
 
-@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600;1,700&family=DM+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
 
 :root {
-  --bg-base:      #080507;
-  --bg-surface:   #0e0810;
-  --bg-panel:     #150b0f;
-  --bg-input:     #0c0810;
-  --border:       #241218;
+  --bg-base:      #201828;
+  --bg-surface:   #271e32;
+  --bg-panel:     #2f263c;
+  --bg-input:     #251c30;
+  --border:       #4a3460;
   --border-glow:  rgba(155, 35, 53, 0.4);
 
   --gold:         #c4762a;
@@ -25,14 +25,42 @@
   --longing-color:  #7a3a80;
   --resolve-color:  #3a7a50;
 
-  --font-mono:   'Courier New', Courier, monospace;
-  --font-serif:  'EB Garamond', Georgia, 'Times New Roman', serif;
-  --font-sans:   'Inter', system-ui, sans-serif;
+  --font-mono:   'IBM Plex Mono', 'Courier New', monospace;
+  --font-serif:  'Playfair Display', Georgia, serif;
+  --font-sans:   'DM Sans', system-ui, sans-serif;
 
   --radius:       2px;
   --radius-lg:    3px;
   --transition:   0.3s ease;
 }
+
+/* ── Light theme overrides ───────────────────────────────────────────────── */
+[data-theme="light"] {
+  --bg-base:      #f0e8d8;
+  --bg-surface:   #e8dfc8;
+  --bg-panel:     #ded4bc;
+  --bg-input:     #ebe2ce;
+  --border:       #c4a870;
+  --border-glow:  rgba(155, 35, 53, 0.3);
+
+  --gold:         #8b5a10;
+  --gold-dim:     #a06820;
+  --gold-bright:  #7a4808;
+  --red-accent:   #8b1a2a;
+  --blue-accent:  #2a4a6e;
+  --green-accent: #1a5a30;
+
+  --text-primary:   #1a1018;
+  --text-secondary: #3a2018;
+  --text-muted:     #6a4830;
+
+  --tension-color:  #8b1a2a;
+  --longing-color:  #5a1a70;
+  --resolve-color:  #1a5a30;
+}
+
+[data-theme="light"] body::before { opacity: 0.08; mix-blend-mode: multiply; }
+[data-theme="light"] body::after  { background: radial-gradient(ellipse at 50% 40%, transparent 40%, rgba(180,160,120,0.20) 100%); }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -41,7 +69,8 @@ html, body, #root {
   background: var(--bg-base);
   color: var(--text-primary);
   font-family: var(--font-sans);
-  font-size: 14px;
+  font-size: 16px;
+  font-weight: 400;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
 }
@@ -108,7 +137,7 @@ body::after {
 .logo-icon { font-size: 20px; }
 
 .logo-sub {
-  font-size: 9px;
+  font-size: 11px;
   color: #9a7868;
   letter-spacing: 0.18em;
   margin-top: 2px;
@@ -117,12 +146,36 @@ body::after {
 
 .scene-id-badge {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 12px;
   color: var(--text-muted);
   padding: 4px 10px;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   letter-spacing: 0.08em;
+}
+
+/* ── Theme toggle ────────────────────────────────────────────────────────── */
+
+.theme-toggle {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  font-size: 16px;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition);
+  flex-shrink: 0;
+}
+
+.theme-toggle:hover {
+  color: var(--gold);
+  border-color: var(--gold-dim);
+  background: rgba(196, 118, 42, 0.08);
 }
 
 /* ── Stage (initial input) ───────────────────────────────────────────────── */
@@ -139,7 +192,7 @@ body::after {
 .stage-headline {
   font-family: var(--font-serif);
   font-size: 44px;
-  font-weight: 400;
+  font-weight: 700;
   font-style: italic;
   color: var(--text-primary);
   text-align: center;
@@ -151,7 +204,7 @@ body::after {
 .stage-tagline {
   text-align: center;
   color: #c8a090;
-  font-size: 11px;
+  font-size: 13px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   margin-top: 10px;
@@ -206,7 +259,7 @@ body::after {
   gap: 7px;
   padding: 9px 18px;
   border-radius: var(--radius);
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.06em;
   cursor: pointer;
@@ -299,14 +352,14 @@ body::after {
 
 .ref-image-label {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;
   color: var(--gold);
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
 .ref-image-name {
-  font-size: 11px;
+  font-size: 13px;
   color: var(--text-secondary);
   white-space: nowrap;
   overflow: hidden;
@@ -315,14 +368,14 @@ body::after {
 
 .ref-image-remove {
   padding: 4px 8px;
-  font-size: 11px;
+  font-size: 13px;
   flex-shrink: 0;
 }
 
 /* ── Loading hint ─────────────────────────────────────────────────────────── */
 
 .loading-hint {
-  font-size: 11px;
+  font-size: 13px;
   color: var(--text-muted);
   letter-spacing: 0.06em;
   text-align: center;
@@ -355,7 +408,7 @@ body::after {
 .director-callout .icon { font-size: 18px; margin-top: 4px; opacity: 0.7; }
 
 .director-callout .label {
-  font-size: 9px;
+  font-size: 11px;
   color: var(--red-accent);
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -366,6 +419,7 @@ body::after {
 .director-callout .question {
   font-family: var(--font-serif);
   font-size: 18px;
+  font-weight: 600;
   color: var(--text-primary);
   line-height: 1.5;
   font-style: italic;
@@ -399,7 +453,7 @@ body::after {
 /* Modality indicator */
 .modality-tag {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;
   color: var(--text-muted);
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -454,7 +508,7 @@ body::after {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 11px;
+  font-size: 13px;
   color: var(--text-muted);
   font-family: var(--font-mono);
   letter-spacing: 0.04em;
@@ -505,7 +559,7 @@ body::after {
 
 .scene-summary-bar .label {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.18em;
   color: var(--gold-dim);
   text-transform: uppercase;
@@ -603,7 +657,7 @@ body::after {
   justify-content: center;
   gap: 12px;
   color: var(--text-secondary);
-  font-size: 12px;
+  font-size: 14px;
   font-family: var(--font-mono);
 }
 
@@ -614,7 +668,7 @@ body::after {
   background: rgba(0,0,0,0.75);
   color: var(--text-secondary);
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 0.05em;
   padding: 3px 8px;
   border-radius: 2px;
@@ -630,7 +684,7 @@ body::after {
 
 .hero-scene-label {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 0.16em;
   color: var(--gold);
   text-transform: uppercase;
@@ -666,7 +720,7 @@ body::after {
 
 .hero-direction {
   color: var(--text-secondary);
-  font-size: 13px;
+  font-size: 15px;
   font-style: italic;
   margin: 4px 0 0;
 }
@@ -691,7 +745,7 @@ body::after {
 .hero-video-label {
   padding: 8px 16px;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 0.12em;
   color: var(--text-muted);
   background: rgba(0,0,0,0.6);
@@ -705,13 +759,13 @@ body::after {
   padding: 40px;
   color: var(--text-secondary);
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .hero-finalize-btn {
   margin: 20px 24px 24px;
   align-self: flex-start;
-  font-size: 13px;
+  font-size: 15px;
   letter-spacing: 0.1em;
 }
 
@@ -728,7 +782,7 @@ body::after {
 
 .panel-arc-num {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 700;
   color: var(--red-accent);
   letter-spacing: 0.14em;
@@ -737,7 +791,7 @@ body::after {
 
 .panel-arc-label {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;
   color: var(--text-muted);
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -745,7 +799,7 @@ body::after {
 
 .panel-arc-revising {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;
   color: var(--gold);
   letter-spacing: 0.08em;
   animation: blink 0.9s ease-in-out infinite;
@@ -755,7 +809,7 @@ body::after {
 
 .panel-camera-inline {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 12px;
   color: var(--text-muted);
   letter-spacing: 0.04em;
   margin-top: 2px;
@@ -820,7 +874,7 @@ body::after {
   bottom: 10px;
   right: 10px;
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;
   color: rgba(240, 221, 208, 0.5);
   background: rgba(0,0,0,0.7);
   padding: 2px 7px;
@@ -849,7 +903,7 @@ body::after {
   bottom: 10px;
   left: 10px;
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 700;
   color: rgba(240, 221, 208, 0.5);
   background: rgba(0,0,0,0.75);
@@ -880,7 +934,7 @@ body::after {
 
 .panel-audio-label {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;
   color: var(--gold-dim);
   letter-spacing: 0.1em;
   white-space: nowrap;
@@ -911,7 +965,7 @@ body::after {
 /* ── Panel visual description ───────────────────────────────────── */
 
 .panel-visual-desc {
-  font-size: 13px;
+  font-size: 15px;
   color: var(--text-secondary);
   line-height: 1.6;
   font-family: var(--font-serif);
@@ -928,7 +982,7 @@ body::after {
 
 .panel-dialogue {
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 14px;
   color: var(--text-primary);
   border-left: 2px solid var(--red-accent);
   padding-left: 10px;
@@ -939,7 +993,7 @@ body::after {
 
 .panel-direction {
   font-family: var(--font-serif);
-  font-size: 13px;
+  font-size: 15px;
   color: var(--text-secondary);
   line-height: 1.5;
   font-style: italic;
@@ -950,17 +1004,20 @@ body::after {
 .beat-map-card {
   background: var(--bg-panel);
   border: 1px solid var(--border);
+  border-top: 2px solid var(--gold-dim);
   border-radius: var(--radius-lg);
-  padding: 16px 18px;
+  padding: 20px 22px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(196,118,42,0.08);
 }
 
 .card-title {
   font-family: var(--font-mono);
-  font-size: 9px;
-  letter-spacing: 0.18em;
-  color: var(--gold-dim);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  color: var(--gold);
   text-transform: uppercase;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -968,12 +1025,12 @@ body::after {
 
 .beat-arc-label {
   font-family: var(--font-serif);
-  font-size: 12px;
+  font-size: 15px;
   font-style: italic;
   color: var(--text-secondary);
   text-transform: none;
   letter-spacing: 0;
-  font-weight: 400;
+  font-weight: 600;
   margin-left: auto;
 }
 
@@ -997,42 +1054,45 @@ body::after {
 
 .beat-label {
   font-family: var(--font-mono);
-  font-size: 9px;
-  letter-spacing: 0.12em;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
 }
 
 .beat-value {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 12px;
   color: var(--text-secondary);
 }
 
 .beat-track {
   width: 100%;
-  height: 4px;
-  background: rgba(255,255,255,0.04);
-  border-radius: 2px;
+  height: 8px;
+  background: rgba(255,255,255,0.07);
+  border-radius: 4px;
   overflow: hidden;
 }
 
 .beat-fill {
   height: 100%;
-  border-radius: 2px;
+  border-radius: 4px;
   transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.beat-fill.tension { background: linear-gradient(90deg, rgba(155,35,53,0.5), var(--tension-color)); }
-.beat-fill.longing  { background: linear-gradient(90deg, rgba(122,58,128,0.5), var(--longing-color)); }
-.beat-fill.resolve  { background: linear-gradient(90deg, rgba(58,122,80,0.5), var(--resolve-color)); }
+.beat-fill.tension { background: linear-gradient(90deg, rgba(155,35,53,0.6), var(--tension-color)); box-shadow: 0 0 8px rgba(155,35,53,0.5); }
+.beat-fill.longing  { background: linear-gradient(90deg, rgba(122,58,128,0.6), var(--longing-color)); box-shadow: 0 0 8px rgba(122,58,128,0.5); }
+.beat-fill.resolve  { background: linear-gradient(90deg, rgba(58,122,80,0.6), var(--resolve-color)); box-shadow: 0 0 8px rgba(58,122,80,0.5); }
 
 /* ── Director's Note ─────────────────────────────────────────────────────── */
 
 .director-note-card {
   background: var(--bg-panel);
   border: 1px solid var(--border);
+  border-top: 2px solid var(--red-accent);
   border-radius: var(--radius-lg);
-  padding: 16px 18px;
+  padding: 20px 22px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(155,35,53,0.08);
 }
 
 .note-input-wrap {
@@ -1061,8 +1121,9 @@ body::after {
 }
 
 .note-input::placeholder {
-  color: #8a6858;
+  color: var(--text-muted);
   font-style: italic;
+  font-size: 15px;
 }
 
 .note-submit-row {
@@ -1077,7 +1138,9 @@ body::after {
 .quick-cuts-card {
   background: var(--bg-panel);
   border: 1px solid var(--border);
+  border-top: 2px solid rgba(196, 118, 42, 0.5);
   border-radius: var(--radius-lg);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4);
   padding: 16px 18px;
 }
 
@@ -1097,7 +1160,7 @@ body::after {
   border-radius: var(--radius);
   color: var(--text-secondary);
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 0.04em;
   padding: 8px 10px;
   cursor: pointer;
@@ -1113,7 +1176,7 @@ body::after {
 }
 
 .quick-cut-btn:disabled { opacity: 0.35; cursor: not-allowed; }
-.quick-cut-btn .icon { font-size: 12px; flex-shrink: 0; }
+.quick-cut-btn .icon { font-size: 14px; flex-shrink: 0; }
 
 /* ── Export bar (Obsidian / NotebookLM) ──────────────────────────────────── */
 
@@ -1126,7 +1189,7 @@ body::after {
 }
 .export-bar-label {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.12em;
   color: var(--text-muted);
   margin-bottom: 2px;
@@ -1134,7 +1197,7 @@ body::after {
 .export-btn {
   width: 100%;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 13px;
   letter-spacing: 0.06em;
   padding: 8px 12px;
   border-radius: 4px;
@@ -1169,7 +1232,7 @@ body::after {
   border: 1px solid var(--red-accent);
   border-radius: var(--radius);
   padding: 12px 16px;
-  font-size: 12px;
+  font-size: 14px;
   color: #d07070;
   display: flex;
   align-items: center;
@@ -1212,7 +1275,7 @@ body::after {
   gap: 16px;
   color: var(--text-secondary);
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 13px;
   letter-spacing: 0.06em;
 }
 
@@ -1223,7 +1286,7 @@ body::after {
 
 .rp-title {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.18em;
   color: var(--gold-dim);
   text-transform: uppercase;
@@ -1247,7 +1310,7 @@ body::after {
 
 .rp-section-label {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.15em;
   color: var(--text-secondary);
   text-transform: uppercase;
@@ -1278,7 +1341,7 @@ body::after {
 
 .beat-diff-label {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
@@ -1307,7 +1370,7 @@ body::after {
 
 .beat-diff-delta {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   text-align: right;
 }
@@ -1315,7 +1378,7 @@ body::after {
 .rp-rationale {
   margin-top: 10px;
   font-family: var(--font-serif);
-  font-size: 13px;
+  font-size: 15px;
   color: var(--text-secondary);
   font-style: italic;
 }
@@ -1367,14 +1430,14 @@ body::after {
 
 .rp-panel-num {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 12px;
   color: var(--gold-dim);
   letter-spacing: 0.08em;
 }
 
 .rp-change-badge {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;
   padding: 2px 6px;
   border-radius: 1px;
   letter-spacing: 0.06em;
@@ -1394,7 +1457,7 @@ body::after {
 
 .rp-panel-reason {
   font-family: var(--font-serif);
-  font-size: 13px;
+  font-size: 15px;
   color: var(--text-secondary);
   line-height: 1.5;
   margin-bottom: 4px;
@@ -1403,7 +1466,7 @@ body::after {
 
 .rp-panel-summary {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 12px;
   color: var(--text-muted);
   line-height: 1.5;
   letter-spacing: 0.03em;
@@ -1456,7 +1519,7 @@ body::after {
 }
 .dialogue-edit-hint {
   opacity: 0;
-  font-size: 10px;
+  font-size: 12px;
   color: var(--gold-dim);
   margin-left: 6px;
   transition: opacity 0.2s;
@@ -1474,7 +1537,7 @@ body::after {
   border-radius: var(--radius);
   color: var(--text-primary);
   font-family: var(--font-serif);
-  font-size: 13px;
+  font-size: 15px;
   font-style: italic;
   padding: 8px 12px;
   resize: none;
@@ -1511,7 +1574,7 @@ body::after {
   gap: 8px;
 }
 .rp-video-toggle {
-  font-size: 11px;
+  font-size: 13px;
   padding: 4px 10px;
   display: flex;
   align-items: center;
@@ -1523,7 +1586,7 @@ body::after {
   border: 1px solid var(--gold-dim);
   border-radius: 10px;
   padding: 1px 6px;
-  font-size: 10px;
+  font-size: 12px;
   font-family: var(--font-mono);
 }
 .rp-video-player {
@@ -1539,7 +1602,7 @@ body::after {
   border: 1px solid var(--border);
 }
 .rp-mark-btn {
-  font-size: 11px;
+  font-size: 13px;
   padding: 4px 12px;
   color: var(--gold);
   border-color: var(--gold-dim);
@@ -1591,13 +1654,13 @@ body::after {
 }
 .beat-number {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.2em;
   color: var(--text-muted);
 }
 .beat-arc-label {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 0.25em;
   color: var(--gold-dim);
   text-transform: uppercase;
@@ -1619,7 +1682,7 @@ body::after {
 .beat-narration-marker {
   display: block;
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.2em;
   color: var(--text-muted);
   margin-bottom: 6px;
@@ -1627,7 +1690,7 @@ body::after {
 }
 .beat-narration p {
   color: #c8a090;
-  font-size: 13px;
+  font-size: 15px;
   line-height: 1.65;
 }
 
@@ -1652,14 +1715,14 @@ body::after {
   background: rgba(196, 118, 42, 0.06);
 }
 .beat-direction {
-  font-size: 11px;
+  font-size: 13px;
   color: var(--text-muted);
   font-style: italic;
   margin-top: 4px;
 }
 .beat-camera {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 12px;
   color: var(--text-muted);
   letter-spacing: 0.1em;
   margin-bottom: 16px;
@@ -1708,7 +1771,7 @@ body::after {
 }
 .beat-media-label {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.2em;
   color: var(--text-muted);
   margin-top: 6px;
@@ -1723,7 +1786,7 @@ body::after {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   color: var(--text-muted);
-  font-size: 12px;
+  font-size: 14px;
   font-family: var(--font-mono);
   letter-spacing: 0.05em;
 }
@@ -1741,7 +1804,7 @@ body::after {
 }
 .beat-audio-label {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.2em;
   color: var(--text-muted);
   white-space: nowrap;
@@ -1759,7 +1822,7 @@ body::after {
   margin-top: 28px;
   width: 100%;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   padding: 12px 20px;
@@ -1784,7 +1847,7 @@ body::after {
 .character-entry:first-of-type { margin-top: 0; }
 .character-name {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 0.15em;
   color: var(--gold);
   text-transform: uppercase;
@@ -1792,7 +1855,7 @@ body::after {
   margin-bottom: 4px;
 }
 .character-appearance {
-  font-size: 11px;
+  font-size: 13px;
   color: var(--text-secondary);
   line-height: 1.5;
 }
@@ -1816,7 +1879,7 @@ body::after {
 }
 .final-edit-supertitle {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.25em;
   color: var(--gold-dim);
   text-transform: uppercase;
@@ -1860,7 +1923,7 @@ body::after {
   gap: 10px;
 }
 .final-preview-visual {
-  font-size: 12px;
+  font-size: 14px;
   color: var(--text-secondary);
   line-height: 1.6;
 }
@@ -1875,7 +1938,7 @@ body::after {
   margin: 0;
 }
 .final-preview-direction {
-  font-size: 11px;
+  font-size: 13px;
   color: var(--text-muted);
   font-style: italic;
 }
@@ -1894,19 +1957,19 @@ body::after {
 }
 .final-edit-input-label {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 0.2em;
   color: var(--gold);
   text-transform: uppercase;
 }
 .final-edit-input-hint {
-  font-size: 11px;
+  font-size: 13px;
   color: var(--text-muted);
   font-style: italic;
 }
 .final-edit-submit {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 13px;
   letter-spacing: 0.15em;
   text-transform: uppercase;
   padding: 14px 24px;
@@ -1917,7 +1980,7 @@ body::after {
 .final-success-banner {
   text-align: center;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 13px;
   letter-spacing: 0.2em;
   color: var(--gold);
   padding: 12px;
