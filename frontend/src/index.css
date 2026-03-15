@@ -1115,6 +1115,45 @@ body::after {
 .quick-cut-btn:disabled { opacity: 0.35; cursor: not-allowed; }
 .quick-cut-btn .icon { font-size: 12px; flex-shrink: 0; }
 
+/* ── Export bar (Obsidian / NotebookLM) ──────────────────────────────────── */
+
+.export-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 0 6px;
+  border-top: 1px solid var(--border);
+}
+.export-bar-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+}
+.export-btn {
+  width: 100%;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--bg-panel);
+  color: var(--text-secondary);
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.export-btn:hover { background: #242424; color: var(--text-primary); }
+.export-btn--obsidian:hover  { border-color: #7c6ef5; color: #a89cf7; }
+.export-btn--notebooklm:hover { border-color: #4285f4; color: #7baaf7; }
+.export-btn--copied {
+  border-color: var(--resolve-color) !important;
+  color: var(--resolve-color) !important;
+  background: rgba(46, 204, 113, 0.08) !important;
+}
+
 /* ── New Scene button ────────────────────────────────────────────────────── */
 
 .new-scene-wrap {

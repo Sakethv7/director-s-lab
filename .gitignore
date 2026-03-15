@@ -13,6 +13,9 @@ dist/
 # Claude Code workspace files
 .claude/
 
+# Obsidian user workspace (personal settings — not the project vault)
+# obsidian-vault/.obsidian/ is intentionally committed (project config)
+
 # GCP — service account / credential JSON files
 # Covers: service-account*.json, *credentials*.json,
 # and GCP Console download format: project-name-hexhash.json
