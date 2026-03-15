@@ -16,6 +16,12 @@ dist/
 # Obsidian user workspace (personal settings — not the project vault)
 # obsidian-vault/.obsidian/ is intentionally committed (project config)
 
+# Firebase deployment cache
+.firebase/
+
+# Cloud Run env vars file (mirrors .env — keep off version control)
+backend/env-vars.yaml
+
 # GCP — service account / credential JSON files
 # Covers: service-account*.json, *credentials*.json,
 # and GCP Console download format: project-name-hexhash.json
