@@ -81,6 +81,7 @@ export default function ProductionBeat({
       {panel.video_url ? (
         <div className="beat-video-wrap">
           <video
+            key={panel.video_url}
             className="beat-video"
             src={panel.video_url}
             controls

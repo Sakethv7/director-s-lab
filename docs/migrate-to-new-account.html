@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Director's Lab — Migrate to New Google Account</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Mono:wght@400;500&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      color: #1a1a1a;
+      background: #fff;
+      line-height: 1.7;
+      padding: 48px 56px;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    /* ── Cover ── */
+    .cover {
+      border-bottom: 3px solid #1a1a1a;
+      padding-bottom: 28px;
+      margin-bottom: 36px;
+    }
+    .cover-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: #888;
+      margin-bottom: 10px;
+    }
+    .cover-title {
+      font-size: 28px;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+    .cover-sub {
+      font-size: 14px;
+      color: #444;
+    }
+    .cover-meta {
+      margin-top: 18px;
+      display: flex;
+      gap: 32px;
+      font-size: 11px;
+      color: #666;
+    }
+    .cover-meta span strong { color: #1a1a1a; }
+
+    /* ── Sections ── */
+    h2 {
+      font-size: 15px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      border-left: 4px solid #1a1a1a;
+      padding-left: 12px;
+      margin: 36px 0 16px;
+    }
+    h3 {
+      font-size: 13px;
+      font-weight: 600;
+      margin: 20px 0 8px;
+      color: #1a1a1a;
+    }
+
+    /* ── Steps ── */
+    .step-block {
+      margin-bottom: 28px;
+      padding: 18px 20px;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      page-break-inside: avoid;
+    }
+    .step-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 10px;
+    }
+    .step-num {
+      background: #1a1a1a;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .step-title {
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .step-sub {
+      font-size: 11px;
+      color: #666;
+      margin-top: 2px;
+    }
+    .step-body {
+      padding-left: 40px;
+    }
+    .step-body p {
+      margin-bottom: 8px;
+      color: #333;
+    }
+    .step-body ul, .step-body ol {
+      padding-left: 20px;
+      margin-bottom: 8px;
+    }
+    .step-body li {
+      margin-bottom: 5px;
+      color: #333;
+    }
+
+    /* ── Code blocks ── */
+    code {
+      font-family: 'Fira Mono', monospace;
+      font-size: 11.5px;
+      background: #f4f4f4;
+      padding: 1px 5px;
+      border-radius: 3px;
+      color: #c0392b;
+    }
+    pre {
+      font-family: 'Fira Mono', monospace;
+      font-size: 11.5px;
+      background: #f4f4f4;
+      border: 1px solid #e0e0e0;
+      border-left: 3px solid #1a1a1a;
+      border-radius: 4px;
+      padding: 12px 14px;
+      margin: 10px 0;
+      white-space: pre-wrap;
+      word-break: break-all;
+      line-height: 1.6;
+      color: #1a1a1a;
+    }
+
+    /* ── Warning / info callouts ── */
+    .callout {
+      display: flex;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 4px;
+      margin: 10px 0;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+    .callout-warn {
+      background: #fff8e1;
+      border-left: 3px solid #f39c12;
+      color: #7d5a00;
+    }
+    .callout-info {
+      background: #e8f4fd;
+      border-left: 3px solid #3498db;
+      color: #1a4a7a;
+    }
+    .callout-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+
+    /* ── Table ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      margin: 12px 0;
+    }
+    th {
+      background: #f0f0f0;
+      font-weight: 600;
+      padding: 8px 10px;
+      text-align: left;
+      border: 1px solid #ddd;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    td {
+      padding: 8px 10px;
+      border: 1px solid #e8e8e8;
+      vertical-align: top;
+    }
+    tr:nth-child(even) td { background: #fafafa; }
+
+    /* ── Checklist ── */
+    .checklist {
+      list-style: none;
+      padding: 0;
+      margin: 10px 0;
+    }
+    .checklist li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 5px 0;
+      border-bottom: 1px solid #f0f0f0;
+      color: #333;
+    }
+    .checklist li:last-child { border-bottom: none; }
+    .checkbox {
+      width: 14px;
+      height: 14px;
+      border: 2px solid #aaa;
+      border-radius: 2px;
+      flex-shrink: 0;
+      margin-top: 3px;
+    }
+
+    /* ── Print ── */
+    @media print {
+      body { padding: 24px 32px; }
+      .step-block { page-break-inside: avoid; }
+      h2 { page-break-after: avoid; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- COVER -->
+  <div class="cover">
+    <div class="cover-label">Director's Lab · Internal Guide</div>
+    <div class="cover-title">Migrate to a New Google Account</div>
+    <div class="cover-sub">Step-by-step guide to re-commission all GCP resources and claim free credits on a new account</div>
+    <div class="cover-meta">
+      <span><strong>Project:</strong> Director's Lab</span>
+      <span><strong>Prepared by:</strong> Adithya</span>
+      <span><strong>Date:</strong> March 2026</span>
+    </div>
+  </div>
+
+  <!-- OVERVIEW -->
+  <h2>What You Are Moving</h2>
+  <table>
+    <thead>
+      <tr><th>Service</th><th>What it does</th><th>Billable?</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Cloud Run</td><td>Hosts the FastAPI backend (directors-lab-api)</td><td>Yes — per request</td></tr>
+      <tr><td>Firebase Hosting</td><td>Hosts the React frontend</td><td>Free tier is generous</td></tr>
+      <tr><td>Firestore</td><td>Stores every generated scene permanently</td><td>Free tier covers low usage</td></tr>
+      <tr><td>Cloud Storage (GCS)</td><td>Stores generated images, audio, video files</td><td>Yes — storage + bandwidth</td></tr>
+      <tr><td>Vertex AI (Imagen 3, Lyria, Veo 2)</td><td>AI generation for images, audio, video</td><td>Yes — no free tier</td></tr>
+      <tr><td>Gemini 2.5 Flash</td><td>Scene writing, clarification, revision logic</td><td>Free tier via AI Studio key</td></tr>
+      <tr><td>Artifact Registry</td><td>Stores Docker container images built by Cloud Build</td><td>Small storage cost</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-warn">
+    <div class="callout-icon">⚠</div>
+    <div><strong>Vertex AI (Imagen 3, Lyria, Veo 2) has no free tier.</strong> Free credits from a new GCP account ($300 trial credit) will cover these costs. Once credits run out, charges apply per generation call.</div>
+  </div>
+
+  <!-- PHASE 1 -->
+  <h2>Phase 1 — New Google Account &amp; GCP Project</h2>
+
+  <div class="step-block">
+    <div class="step-header">
+      <div class="step-num">1</div>
+      <div>
+        <div class="step-title">Create a new Google Account</div>
+        <div class="step-sub">If you already have an account with unused free trial credits, skip to Step 2</div>
+      </div>
+    </div>
+    <div class="step-body">
+      <ol>
+        <li>Go to <strong>accounts.google.com</strong> → Create account</li>
+        <li>Use a new email address (e.g. a fresh Gmail)</li>
+        <li>Complete account setup</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-header">
+      <div class="step-num">2</div>
+      <div>
+        <div class="step-title">Create a new GCP Project and activate free trial</div>
+        <div class="step-sub">You get $300 USD in free credits valid for 90 days</div>
+      </div>
+    </div>
+    <div class="step-body">
+      <ol>
+        <li>Go to <strong>console.cloud.google.com</strong> and sign in with the new account</li>
+        <li>Click <strong>Activate Free Trial</strong> — you will need to enter a credit card (you will NOT be charged unless you manually upgrade)</li>
+        <li>Click <strong>Select a project → New Project</strong></li>
+        <li>Name it: <code>Director's Lab</code> — GCP will auto-assign a Project ID like <code>directors-lab-XXXXXX</code></li>
+        <li>Note the exact <strong>Project ID</strong> shown below the name field — you will paste it into every command below</li>
+      </ol>
+      <div class="callout callout-info">
+        <div class="callout-icon">ℹ</div>
+        <div>The Project ID is auto-generated (e.g. <code>directors-lab-482910</code>) and is different from the name. Write it down — you'll need it in Steps 3, 8, 9, 10, and 11.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-header">
+      <div class="step-num">3</div>
+      <div>
+        <div class="step-title">Enable required APIs</div>
+        <div class="step-sub">Run in Google Cloud SDK Shell</div>
+      </div>
+    </div>
+    <div class="step-body">
+      <pre>gcloud config set project gemini-live-agent-challenge-26
+
+gcloud services enable \
+  run.googleapis.com \
+  cloudbuild.googleapis.com \
+  artifactregistry.googleapis.com \
+  aiplatform.googleapis.com \
+  firestore.googleapis.com \
+  storage.googleapis.com \
+  texttospeech.googleapis.com</pre>
+    </div>
+  </div>
+
+  <!-- PHASE 2 -->
+  <h2>Phase 2 — Firebase Setup</h2>
+
+  <div class="step-block">
+    <div class="step-header">
+      <div class="step-num">4</div>
+      <div>
+        <div class="step-title">Link Firebase to your new GCP project</div>
+        <div class="step-sub">Firebase Hosting needs to be connected to the project</div>
+      </div>
+    </div>
+    <div class="step-body">
+      <ol>
+        <li>Go to <strong>console.firebase.google.com</strong></li>
+        <li>Click <strong>Add project</strong> → select your existing GCP project from the list</li>
+        <li>Follow the setup wizard (you can disable Google Analytics if you don't need it)</li>
+        <li>Once linked, run from your project root directory:
+          <pre>firebase login
+firebase use --add</pre>
+          Select your new GCP project when prompted.
+        </li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-header">
+      <div class="step-num">5</div>
+      <div>
+        <div class="step-title">Create Firestore database</div>
+        <div class="step-sub">The backend stores every scene here</div>
+      </div>
+    </div>
+    <div class="step-body">
+      <ol>
+        <li>In Firebase Console → go to <strong>Firestore Database</strong></li>
+        <li>Click <strong>Create database</strong></li>
+        <li>Choose <strong>Native mode</strong></li>
+        <li>Select region: <strong>us-central1</strong> (must match Cloud Run region)</li>
+        <li>Start in <strong>production mode</strong> (the <code>firestore.rules</code> file already handles permissions)</li>
+      </ol>
+      <div class="callout callout-info">
+        <div class="callout-icon">ℹ</div>
+        <div>The <code>firestore.rules</code> file in the project root allows the backend to write and everyone to read. Deploy these rules with: <code>firebase deploy --only firestore:rules</code></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 3 -->
+  <h2>Phase 3 — Cloud Storage Bucket</h2>
+
+  <div class="step-block">
+    <div class="step-header">
+      <div class="step-num">6</div>
+      <div>
+        <div class="step-title">Create and configure the GCS bucket</div>
+        <div class="step-sub">Run in Google Cloud SDK Shell</div>
+      </div>
+    </div>
+    <div class="step-body">
+      <p>Use the same bucket name as before: <code>gemini-hackathon-2026-bucket</code><br>
+      <strong>Note:</strong> This only works if you have already deleted the old bucket from the previous account. If not, delete it first with <code>gsutil rm -r gs://gemini-hackathon-2026-bucket</code> on the old account.</p>
+      <pre># Create the bucket
+gsutil mb -p gemini-live-agent-challenge-26 -l us-central1 gs://gemini-hackathon-2026-bucket
+
+# Enable uniform bucket-level access (required)
+gsutil uniformbucketlevelaccess set on gs://gemini-hackathon-2026-bucket
+
+# Make all objects publicly readable (so image/audio/video URLs work)
+gsutil iam ch allUsers:objectViewer gs://gemini-hackathon-2026-bucket</pre>
+    </div>
+  </div>
+
+  <!-- PHASE 4 -->
+  <h2>Phase 4 — Service Account (for Local Dev)</h2>
+
+  <div class="step-block">
+    <div class="step-header">
+      <div class="step-num">7</div>
+      <div>
+        <div class="step-title">Create a service account with required roles</div>
+        <div class="step-sub">Only needed for local development. Cloud Run uses its default service account automatically.</div>
+      </div>
+    </div>
+    <div class="step-body">
+      <ol>
+        <li>In GCP Console → <strong>IAM &amp; Admin → Service Accounts</strong></li>
+        <li>Click <strong>Create Service Account</strong></li>
+        <li>Name it: <code>directors-lab-sa</code></li>
+        <li>Grant it these roles:
+          <ul>
+            <li><strong>Vertex AI User</strong> — for Imagen 3, Lyria, Veo 2</li>
+            <li><strong>Cloud Datastore User</strong> — for Firestore read/write</li>
+            <li><strong>Storage Object Admin</strong> — for GCS upload and public URL access</li>
+          </ul>
+        </li>
+        <li>Click <strong>Done</strong></li>
+        <li>Click on the service account → <strong>Keys tab → Add Key → JSON</strong></li>
+        <li>Download the JSON file and save it to <code>C:\Users\Adithya\Downloads\</code> — same place as before</li>
+      </ol>
+      <div class="callout callout-warn">
+        <div class="callout-icon">⚠</div>
+        <div>Never commit this JSON key file to Git. The <code>.gitignore</code> already excludes it via the pattern <code>*credentials*.json</code> and <code>service-account*.json</code>, but double-check before any commit.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 5 -->
+  <h2>Phase 5 — Update Environment Variables</h2>
+
+  <div class="step-block">
+    <div class="step-header">
+      <div class="step-num">8</div>
+      <div>
+        <div class="step-title">Update backend/.env (local development)</div>
+        <div class="step-sub">This file is gitignored — safe to edit freely</div>
+      </div>
+    </div>
+    <div class="step-body">
+      <p>Open <code>backend/.env</code>. Only the <strong>3 lines marked ← CHANGE</strong> need updating. Everything else is identical to before.</p>
+      <pre>GEMINI_API_KEY=
+
+GEMINI_MODEL=gemini-2.5-flash
+
+GOOGLE_APPLICATION_CREDENTIALS="C:\Users\Adithya\Downloads\YOUR_NEW_KEY_FILE.json"  # ← CHANGE: new JSON key filename
+
+GOOGLE_CLOUD_PROJECT=gemini-live-agent-challenge-26          # same as before
+GOOGLE_CLOUD_REGION=us-central1
+
+CORS_ORIGINS=https://gemini-live-agent-challenge-26.web.app,https://gemini-live-agent-challenge-26.firebaseapp.com  # same as before
+
+FIRESTORE_COLLECTION=scenes
+
+GCS_BUCKET_NAME=gemini-hackathon-2026-bucket</pre>
+      <div class="callout callout-info">
+        <div class="callout-icon">ℹ</div>
+        <div><strong>Only 1 thing changes:</strong> the <code>GOOGLE_APPLICATION_CREDENTIALS</code> filename — because the new account generates a new JSON key file. Every other value is identical to the old account.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-header">
+      <div class="step-num">9</div>
+      <div>
+        <div class="step-title">Update backend/env-vars.yaml (Cloud Run deployment)</div>
+        <div class="step-sub">Used during gcloud deploy — also gitignored</div>
+      </div>
+    </div>
+    <div class="step-body">
+      <p>Open <code>backend/env-vars.yaml</code>. Only the <strong>2 lines marked ← CHANGE</strong> need updating.</p>
+      <pre>GEMINI_API_KEY: ""
+GEMINI_MODEL: "gemini-2.5-flash"
+GOOGLE_CLOUD_PROJECT: "gemini-live-agent-challenge-26"                                                    # same as before
+GOOGLE_CLOUD_REGION: "us-central1"
+GCS_BUCKET_NAME: "gemini-hackathon-2026-bucket"
+FIRESTORE_COLLECTION: "scenes"
+CORS_ORIGINS: "https://gemini-live-agent-challenge-26.web.app,https://gemini-live-agent-challenge-26.firebaseapp.com"   # same as before</pre>
+      <div class="callout callout-info">
+        <div class="callout-icon">ℹ</div>
+        <div><strong>Note:</strong> <code>env-vars.yaml</code> does not have a <code>GOOGLE_APPLICATION_CREDENTIALS</code> line — Cloud Run uses its attached service account automatically, no JSON key needed.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 6 -->
+  <h2>Phase 6 — Deploy Backend</h2>
+
+  <div class="step-block">
+    <div class="step-header">
+      <div class="step-num">10</div>
+      <div>
+        <div class="step-title">Authenticate gcloud with the new account</div>
+        <div class="step-sub">Run in Google Cloud SDK Shell</div>
+      </div>
+    </div>
+    <div class="step-body">
+      <pre>gcloud auth login                                  # sign in with project.account.for.building@gmail.com
+gcloud config set project gemini-live-agent-challenge-26
+gcloud auth application-default login</pre>
+    </div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-header">
+      <div class="step-num">11</div>
+      <div>
+        <div class="step-title">Deploy backend to Cloud Run</div>
+        <div class="step-sub">Google Cloud Build builds the Docker image automatically — no local Docker needed</div>
+      </div>
+    </div>
+    <div class="step-body">
+      <pre>gcloud run deploy directors-lab-api \
+  --source "d:\Data Engineering\director-s-lab\backend" \
+  --region us-central1 \
+  --allow-unauthenticated \
+  --memory 2Gi \
+  --timeout 300 \
+  --env-vars-file "d:\Data Engineering\director-s-lab\backend\env-vars.yaml"</pre>
+      <p>After deployment, note the Cloud Run URL printed at the end. It looks like:</p>
+      <pre>https://directors-lab-api-XXXXXXXXXX-uc.a.run.app</pre>
+    </div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-header">
+      <div class="step-num">12</div>
+      <div>
+        <div class="step-title">Confirm the correct Cloud Run URL</div>
+      </div>
+    </div>
+    <div class="step-body">
+      <pre>gcloud run services describe directors-lab-api \
+  --region us-central1 \
+  --format="value(status.url)"</pre>
+      <p>Copy this URL — you need it in the next step.</p>
+    </div>
+  </div>
+
+  <!-- PHASE 7 -->
+  <h2>Phase 7 — Deploy Frontend</h2>
+
+  <div class="step-block">
+    <div class="step-header">
+      <div class="step-num">13</div>
+      <div>
+        <div class="step-title">Update frontend/.env.local with the new Cloud Run URL</div>
+        <div class="step-sub">This bypasses Firebase Hosting's 60-second proxy timeout for long AI requests</div>
+      </div>
+    </div>
+    <div class="step-body">
+      <p>Open <code>frontend/.env.local</code> and replace the URL:</p>
+      <p>The old URL was: <code>https://directors-lab-api-y4fm425eyq-uc.a.run.app</code><br>
+      Replace it with the new URL from Step 12.</p>
+      <pre>VITE_API_URL=https://directors-lab-api-XXXXXXXXXX-uc.a.run.app  # ← paste new URL here</pre>
+    </div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-header">
+      <div class="step-num">14</div>
+      <div>
+        <div class="step-title">Update firebase.json with the new Cloud Run service URL</div>
+        <div class="step-sub">The rewrite rule must point to the new project's Cloud Run service</div>
+      </div>
+    </div>
+    <div class="step-body">
+      <p>Open <code>firebase.json</code> in the project root. Find the <code>rewrites</code> section and confirm the <code>run</code> block has:</p>
+      <pre>{
+  "source": "/api/**",
+  "run": {
+    "serviceId": "directors-lab-api",
+    "region": "us-central1"
+  }
+}</pre>
+      <p>The <code>serviceId</code> stays the same (<code>directors-lab-api</code>) — Firebase resolves it relative to whichever project is active.</p>
+    </div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-header">
+      <div class="step-num">15</div>
+      <div>
+        <div class="step-title">Build and deploy the frontend</div>
+        <div class="step-sub">Run from the project root in any terminal</div>
+      </div>
+    </div>
+    <div class="step-body">
+      <pre>cd frontend
+npm run build
+cd ..
+firebase deploy --only hosting</pre>
+      <p>Firebase Hosting URL — same as before:</p>
+      <pre>https://gemini-live-agent-challenge-26.web.app</pre>
+    </div>
+  </div>
+
+  <!-- PHASE 8 -->
+  <h2>Phase 8 — Test Everything</h2>
+
+  <div class="step-block">
+    <div class="step-header">
+      <div class="step-num">16</div>
+      <div>
+        <div class="step-title">Run these checks in order</div>
+      </div>
+    </div>
+    <div class="step-body">
+      <ul class="checklist">
+        <li><div class="checkbox"></div><span>Health check passes: <code>https://directors-lab-api-XXXXXXXXXX-uc.a.run.app/health</code> returns <code>{"status":"ok"}</code></span></li>
+        <li><div class="checkbox"></div><span>Frontend loads at <code>https://gemini-live-agent-challenge-26.web.app</code></span></li>
+        <li><div class="checkbox"></div><span>Pitch a scene → clarifying question appears (Gemini is working)</span></li>
+        <li><div class="checkbox"></div><span>Answer the question → storyboard frame generates with an image (Imagen 3 is working)</span></li>
+        <li><div class="checkbox"></div><span>Video clip appears on the storyboard (Veo 2 is working)</span></li>
+        <li><div class="checkbox"></div><span>Scene is saved — refresh the page, scene still loads (Firestore is working)</span></li>
+        <li><div class="checkbox"></div><span>Director's Note revision regenerates the video (full loop working)</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- PHASE 9 -->
+  <h2>Phase 9 — Decommission Old Account (Optional)</h2>
+
+  <div class="step-block">
+    <div class="step-header">
+      <div class="step-num">17</div>
+      <div>
+        <div class="step-title">Stop billing on the old GCP project</div>
+        <div class="step-sub">Do this only after confirming the new account works</div>
+      </div>
+    </div>
+    <div class="step-body">
+      <p>Run in Google Cloud SDK Shell (authenticated as the OLD account):</p>
+      <pre># Delete the old Cloud Run service (stops compute billing)
+gcloud run services delete directors-lab-api \
+  --region us-central1 \
+  --project gemini-live-agent-challenge-26
+
+# Delete the old GCS bucket
+gsutil rm -r gs://gemini-hackathon-2026-bucket
+
+# Delete the old Artifact Registry images
+gcloud artifacts repositories delete cloud-run-source-deploy \
+  --location us-central1 \
+  --project gemini-live-agent-challenge-26</pre>
+      <p>Or for a full nuclear delete of the old project:</p>
+      <pre>gcloud projects delete gemini-live-agent-challenge-26</pre>
+      <div class="callout callout-warn">
+        <div class="callout-icon">⚠</div>
+        <div>Project deletion takes 30 days to become permanent. You can restore it within that window at <strong>console.cloud.google.com/cloud-resource-manager</strong> if needed.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUMMARY TABLE -->
+  <h2>Quick Reference — Values to Update</h2>
+  <table>
+    <thead>
+      <tr><th>File</th><th>Variable / Setting</th><th>What to change it to</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>backend/.env</code></td><td><code>GOOGLE_APPLICATION_CREDENTIALS</code></td><td>New JSON key filename in <code>C:\Users\Adithya\Downloads\</code> — only this changes</td></tr>
+      <tr><td><code>backend/.env</code></td><td>Everything else</td><td>No change — all values are identical to the old account</td></tr>
+      <tr><td><code>backend/env-vars.yaml</code></td><td>All values</td><td>No change — copy as-is</td></tr>
+      <tr><td><code>frontend/.env.local</code></td><td><code>VITE_API_URL</code></td><td>New Cloud Run URL from Step 12 (replaces: <code>https://directors-lab-api-y4fm425eyq-uc.a.run.app</code>)</td></tr>
+    </tbody>
+  </table>
+
+  <div style="margin-top:48px; padding-top:16px; border-top:1px solid #ddd; font-size:11px; color:#999; text-align:center;">
+    Director's Lab · Migration Guide · Prepared March 2026 · To print as PDF: File → Print → Save as PDF
+  </div>
+
+</body>
+</html>

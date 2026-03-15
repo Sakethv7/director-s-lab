@@ -136,6 +136,7 @@ export default function StoryboardPanel({ panel, isRegenerating, onDialogueEdit 
       {hasVideo && (
         <div className="panel-video-wrap">
           <video
+            key={panel.video_url}
             className="panel-video"
             src={panel.video_url}
             controls
