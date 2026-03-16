@@ -58,10 +58,10 @@ GEMINI_IMAGE_MODEL   = "gemini-2.0-flash-preview-image-generation"   # native in
 IMAGEN_MODEL         = "imagen-3.0-generate-001"                      # fallback
 GCS_BUCKET           = os.getenv("GCS_BUCKET_NAME", "")
 FIRESTORE_COLLECTION = os.getenv("FIRESTORE_COLLECTION", "scenes")
-GEMINI_TIMEOUT_SECS  = float(os.getenv("GEMINI_TIMEOUT_SECS", "60"))
-IMAGE_TIMEOUT_SECS   = float(os.getenv("IMAGE_TIMEOUT_SECS", "90"))
-AUDIO_TIMEOUT_SECS   = float(os.getenv("AUDIO_TIMEOUT_SECS", "90"))
-VIDEO_TIMEOUT_SECS   = float(os.getenv("VIDEO_TIMEOUT_SECS", "360"))
+GEMINI_TIMEOUT_SECS  = float(os.getenv("GEMINI_TIMEOUT_SECS", "45"))   # under Firebase 60s proxy limit
+IMAGE_TIMEOUT_SECS   = float(os.getenv("IMAGE_TIMEOUT_SECS",  "45"))   # Imagen 3 typically 5-15s
+AUDIO_TIMEOUT_SECS   = float(os.getenv("AUDIO_TIMEOUT_SECS",  "90"))   # background only
+VIDEO_TIMEOUT_SECS   = float(os.getenv("VIDEO_TIMEOUT_SECS",  "360"))  # background only
 
 
 def initialize_clients():
@@ -864,30 +864,18 @@ async def generate_scene(
     beat_map   = BeatMap.from_dict(raw["beat_map"])
     panels_raw = raw.get("panels", [])
 
-    # Single panel — generate image + merged video (ambient + voice) in parallel
+    # Single panel — generate image fast; video runs as background task
     p = panels_raw[0]
-    image_url, video_url = await asyncio.gather(
-        _generate_image(p["image_prompt"], scene_id, p["panel_number"]),
-        _generate_video_with_audio(
-            p.get("video_prompt", p["image_prompt"]),
-            p.get("audio_mood", "cinematic ambient score"),
-            p.get("dialogue", ""),
-            scene_id,
-            p["panel_number"],
-            voice_gender=p.get("voice_gender", "female"),
-        ),
-    )
-    image_urls = [image_url]
-    video_urls = [video_url]
+    image_url = await _generate_image(p["image_prompt"], scene_id, p["panel_number"])
 
     panels = [
         {
             **p,
-            "image_url": image_urls[i],
-            "audio_url": "",        # audio is now baked into the video
-            "video_url": video_urls[i],
+            "image_url": image_url,
+            "audio_url": "",   # audio is baked into the video
+            "video_url": "",   # filled in by generate_video_for_scene background task
         }
-        for i, p in enumerate(panels_raw)
+        for p in panels_raw
     ]
 
     scene_data = {
@@ -898,11 +886,44 @@ async def generate_scene(
         "scene_summary":       raw.get("scene_summary", ""),
         "beat_map":            beat_map.to_dict(),
         "panels":              panels,
+        "video_status":        "pending",
         "created_at":          datetime.now(timezone.utc).isoformat(),
         "updated_at":          datetime.now(timezone.utc).isoformat(),
     }
     await _save_scene(scene_id, scene_data)
     return scene_data
+
+
+async def generate_video_for_scene(scene_id: str) -> None:
+    """Background task: run Veo + merge and update Firestore when done."""
+    try:
+        scene_data = await _load_scene(scene_id)
+        if not scene_data:
+            logger.warning("generate_video_for_scene: scene %s not found", scene_id)
+            return
+        p = scene_data["panels"][0]
+        video_url = await _generate_video_with_audio(
+            p.get("video_prompt", p["image_prompt"]),
+            p.get("audio_mood", "cinematic ambient score"),
+            p.get("dialogue", ""),
+            scene_id,
+            p["panel_number"],
+            voice_gender=p.get("voice_gender", "female"),
+        )
+        panels = scene_data["panels"]
+        panels[0]["video_url"] = video_url or ""
+        await _update_scene(scene_id, {
+            "panels":       panels,
+            "video_status": "ready" if video_url else "failed",
+            "updated_at":   datetime.now(timezone.utc).isoformat(),
+        })
+        logger.info("generate_video_for_scene: done for %s (url=%s)", scene_id, bool(video_url))
+    except Exception as exc:
+        logger.exception("generate_video_for_scene failed for %s: %s", scene_id, exc)
+        try:
+            await _update_scene(scene_id, {"video_status": "failed"})
+        except Exception:
+            pass
 
 
 async def preview_revision(scene_id: str, revision_note: str) -> dict:
@@ -993,41 +1014,16 @@ async def revise_scene(
         if p["panel_number"] in approved_panels  # safety guard
     ]
 
-    # Regenerate image + audio+video merged for every approved panel
+    # Regenerate image fast; video runs as background task
     image_tasks = [
         _generate_image(p["image_prompt"], scene_id, p["panel_number"])
         for p in revised_panels_raw
     ]
-
-    def _video_prompt_with_ts(p):
-        base = p.get("video_prompt", p["image_prompt"])
-        ts = (timestamps or {}).get(p["panel_number"])
-        if ts is not None:
-            m, s = divmod(int(ts), 60)
-            base = f"{base} [Focus on the moment at approximately {m}m{s:02d}s of the previous clip.]"
-        return base
-
-    av_tasks = [
-        _generate_video_with_audio(
-            _video_prompt_with_ts(p),
-            p.get("audio_mood", p.get("direction_note", "cinematic ambient score")[:80]),
-            p.get("dialogue", ""),
-            scene_id,
-            p["panel_number"],
-            delay=i * 8,
-            voice_gender=p.get("voice_gender", "female"),
-        )
-        for i, p in enumerate(revised_panels_raw)
-    ]
-
-    n = len(revised_panels_raw)
-    all_results = await asyncio.gather(*image_tasks, *av_tasks)
-    image_urls  = list(all_results[:n])
-    video_urls  = list(all_results[n:])
+    image_urls = list(await asyncio.gather(*image_tasks))
 
     panel_to_image = {p["panel_number"]: url for p, url in zip(revised_panels_raw, image_urls)}
     panel_to_audio = {p["panel_number"]: ""  for p in revised_panels_raw}   # baked into video
-    panel_to_video = {p["panel_number"]: url for p, url in zip(revised_panels_raw, video_urls)}
+    panel_to_video = {p["panel_number"]: ""  for p in revised_panels_raw}   # filled by background
     revised_by_num = {p["panel_number"]: p for p in revised_panels_raw}
 
     _dialogue_map = {int(k): v for k, v in (dialogue_overrides or {}).items()}
@@ -1054,10 +1050,60 @@ async def revise_scene(
         "panels":             updated_panels,
         "affected_panels":    approved_panels,
         "last_revision_note": revision_note,
+        "video_status":       "pending",
         "updated_at":         datetime.now(timezone.utc).isoformat(),
     }
     await _update_scene(scene_id, updates)
     return {**scene_data, **updates}
+
+
+async def revise_video_for_scene(scene_id: str, revised_panel_nums: list, timestamps: dict = None) -> None:
+    """Background task: regenerate Veo video for revised panels and update Firestore."""
+    try:
+        scene_data = await _load_scene(scene_id)
+        if not scene_data:
+            return
+
+        def _video_prompt_with_ts(p):
+            base = p.get("video_prompt", p["image_prompt"])
+            ts = (timestamps or {}).get(p["panel_number"])
+            if ts is not None:
+                m, s = divmod(int(ts), 60)
+                base = f"{base} [Focus on the moment at approximately {m}m{s:02d}s of the previous clip.]"
+            return base
+
+        panels_to_regen = [p for p in scene_data["panels"] if p["panel_number"] in revised_panel_nums]
+        av_tasks = [
+            _generate_video_with_audio(
+                _video_prompt_with_ts(p),
+                p.get("audio_mood", "cinematic ambient score"),
+                p.get("dialogue", ""),
+                scene_id,
+                p["panel_number"],
+                delay=i * 8,
+                voice_gender=p.get("voice_gender", "female"),
+            )
+            for i, p in enumerate(panels_to_regen)
+        ]
+        video_urls = list(await asyncio.gather(*av_tasks))
+        panel_to_video = {p["panel_number"]: url for p, url in zip(panels_to_regen, video_urls)}
+
+        updated_panels = [
+            {**p, "video_url": panel_to_video[p["panel_number"]]} if p["panel_number"] in panel_to_video else p
+            for p in scene_data["panels"]
+        ]
+        await _update_scene(scene_id, {
+            "panels":       updated_panels,
+            "video_status": "ready",
+            "updated_at":   datetime.now(timezone.utc).isoformat(),
+        })
+        logger.info("revise_video_for_scene: done for %s panels=%s", scene_id, revised_panel_nums)
+    except Exception as exc:
+        logger.exception("revise_video_for_scene failed for %s: %s", scene_id, exc)
+        try:
+            await _update_scene(scene_id, {"video_status": "failed"})
+        except Exception:
+            pass
 
 
 async def get_scene(scene_id: str) -> Optional[dict]:
@@ -1102,22 +1148,12 @@ async def finalize_scene(scene_id: str, suite_num: int, polish_note: str) -> dic
     # Merge refined fields back into panel
     polished_panel = {**panel, **refined}
 
-    # Regenerate image + merged audio+voice+video for the polished panel
-    image_url, video_url = await asyncio.gather(
-        _generate_image(polished_panel["image_prompt"], scene_id, suite_num),
-        _generate_video_with_audio(
-            polished_panel.get("video_prompt", polished_panel["image_prompt"]),
-            polished_panel.get("audio_mood", "cinematic ambient score"),
-            polished_panel.get("dialogue", ""),
-            scene_id,
-            suite_num,
-            voice_gender=polished_panel.get("voice_gender", "female"),
-        ),
-    )
+    # Regenerate image fast; video runs as background task
+    image_url = await _generate_image(polished_panel["image_prompt"], scene_id, suite_num)
 
     polished_panel["image_url"] = image_url
-    polished_panel["audio_url"] = ""        # baked into video
-    polished_panel["video_url"] = video_url
+    polished_panel["audio_url"] = ""   # baked into video
+    polished_panel["video_url"] = ""   # filled by background task
 
     # Update Firestore
     updated_panels = [
@@ -1128,7 +1164,40 @@ async def finalize_scene(scene_id: str, suite_num: int, polish_note: str) -> dic
         "panels":             updated_panels,
         "affected_panels":    [suite_num],
         "last_revision_note": f"FINAL POLISH: {polish_note}",
+        "video_status":       "pending",
         "updated_at":         datetime.now(timezone.utc).isoformat(),
     }
     await _update_scene(scene_id, updates)
     return {**scene_data, **updates}
+
+
+async def finalize_video_for_scene(scene_id: str, suite_num: int, polished_panel: dict) -> None:
+    """Background task: generate Veo video for the finalized panel and update Firestore."""
+    try:
+        video_url = await _generate_video_with_audio(
+            polished_panel.get("video_prompt", polished_panel["image_prompt"]),
+            polished_panel.get("audio_mood", "cinematic ambient score"),
+            polished_panel.get("dialogue", ""),
+            scene_id,
+            suite_num,
+            voice_gender=polished_panel.get("voice_gender", "female"),
+        )
+        scene_data = await _load_scene(scene_id)
+        if not scene_data:
+            return
+        updated_panels = [
+            {**p, "video_url": video_url or ""} if p["panel_number"] == suite_num else p
+            for p in scene_data["panels"]
+        ]
+        await _update_scene(scene_id, {
+            "panels":       updated_panels,
+            "video_status": "ready" if video_url else "failed",
+            "updated_at":   datetime.now(timezone.utc).isoformat(),
+        })
+        logger.info("finalize_video_for_scene: done for %s panel=%s", scene_id, suite_num)
+    except Exception as exc:
+        logger.exception("finalize_video_for_scene failed for %s: %s", scene_id, exc)
+        try:
+            await _update_scene(scene_id, {"video_status": "failed"})
+        except Exception:
+            pass

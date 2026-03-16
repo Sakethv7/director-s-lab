@@ -1,11 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
-import StoryboardPanel from "./components/StoryboardPanel";
 import BeatMap from "./components/BeatMap";
-import DirectorNote from "./components/DirectorNote";
 import QuickCuts from "./components/QuickCuts";
-import RevisionPreview from "./components/RevisionPreview";
-import ProductionBeat from "./components/ProductionBeat";
-import FinalEditPanel from "./components/FinalEditPanel";
 
 // In production, Firebase Hosting rewrites /api/** to Cloud Run — relative URLs work.
 // In dev, Vite proxies /api/** to localhost:8080 — also relative. No VITE_API_URL needed.
@@ -13,26 +8,13 @@ import FinalEditPanel from "./components/FinalEditPanel";
 const API = import.meta.env.VITE_API_URL || "";
 
 // ── State machine ────────────────────────────────────────────────────────────
-// idle → clarifying → generating → scene
-//                                   ↓
-//                        previewing_revision   (agent proposes changes, no image gen)
-//                                   ↓
-//                         review_revision      (human toggles panels, confirms)
-//                                   ↓
-//                            revising          (media generating for approved panels only)
-//                                   ↓
-//                               scene          (updated storyboard)
+// idle → clarifying → generating → scene ↔ revising
 const STATES = {
-  IDLE:                "idle",
-  CLARIFYING:          "clarifying",
-  GENERATING:          "generating",
-  SCENE:               "scene",               // Production Stream — all 4 beats
-  PREVIEWING_REVISION: "previewing_revision",
-  REVIEW_REVISION:     "review_revision",
-  REVISING:            "revising",
-  SELECTING:           "selecting",            // user picked a beat → polish input
-  FINALIZING:          "finalizing",           // polish being applied
-  FINAL:               "final",                // final polished beat
+  IDLE:       "idle",
+  CLARIFYING: "clarifying",
+  GENERATING: "generating",
+  SCENE:      "scene",
+  REVISING:   "revising",
 };
 
 const LOAD_STEPS = [
@@ -46,16 +28,15 @@ const LOAD_STEPS = [
   "Weaving it all together…",
 ];
 
-// Per-call timeouts (ms).
-// Single panel: 1 × Gemini/Imagen image + 1 × (Veo + Lyria + TTS) merged
+// Per-call timeouts (ms) — all fast-path (Veo runs in background).
+// 55s is just under Firebase Hosting's 60s proxy limit.
 const TIMEOUTS = {
   clarify:  30_000,
-  generate: 300_000,   // 5 min — 1 Veo + 1 Imagen + 1 Lyria + 1 TTS
-  preview:  30_000,
-  revise:   300_000,
+  generate: 55_000,
+  revise:   55_000,
 };
 
-async function apiFetch(path, options = {}, timeoutMs = 300_000) {
+async function apiFetch(path, options = {}, timeoutMs = 300_000, _retry = true) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
@@ -64,6 +45,12 @@ async function apiFetch(path, options = {}, timeoutMs = 300_000) {
       signal: controller.signal,
       ...options,
     });
+    // Retry once on cold-start gateway errors (502/503/504) after a short delay
+    if (_retry && (res.status === 502 || res.status === 503 || res.status === 504)) {
+      clearTimeout(timer);
+      await new Promise((r) => setTimeout(r, 2000));
+      return apiFetch(path, options, timeoutMs, false);
+    }
     if (!res.ok) {
       const err = await res.json().catch(() => ({ detail: res.statusText }));
       throw new Error(err.detail || `Request failed (${res.status})`);
@@ -89,12 +76,6 @@ function readFileAsBase64(file) {
 
 export default function App() {
   const [theme, setTheme] = useState(() => localStorage.getItem("theme") || "dark");
-
-  useEffect(() => {
-    document.documentElement.setAttribute("data-theme", theme);
-    localStorage.setItem("theme", theme);
-  }, [theme]);
-
   const [appState,    setAppState]    = useState(STATES.IDLE);
   const [sceneInput,  setSceneInput]  = useState("");
   const [clarifyCtx,  setClarifyCtx]  = useState(null);
@@ -103,11 +84,6 @@ export default function App() {
   const [loadStep,    setLoadStep]    = useState(0);
   const [error,       setError]       = useState(null);
   const [affectedPanels, setAffectedPanels] = useState([]);
-  const [dialogueEdits, setDialogueEdits] = useState({});  // {panel_number: edited_text}
-
-  // Pick & Finalize state
-  const [selectedBeatNum, setSelectedBeatNum] = useState(null);
-  const [polishNote,      setPolishNote]      = useState("");
 
   // Multimodal reference image
   const [refImage,     setRefImage]     = useState(null);   // base64 string
@@ -115,16 +91,38 @@ export default function App() {
   const [refImageName, setRefImageName] = useState("");
   const imageInputRef = useRef(null);
 
-  // HITL revision state
-  const [revisionProposal, setRevisionProposal] = useState(null);
-  const [pendingNote,      setPendingNote]      = useState("");
-
   // Export state
   const [notebookLMCopied, setNotebookLMCopied] = useState(false);
 
   const recognitionRef = useRef(null);
   const [recording, setRecording] = useState(false);
   const [inputModality, setInputModality] = useState("text"); // "text" | "image" | "voice"
+
+  // ── All useState/useRef declarations above this line ──────────────────────
+  // NOTE: both useEffects are intentionally placed HERE, after every useState/useRef,
+  // so the minifier never hoists them above a const TDZ.
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+
+  // Poll for video_url when scene is loaded but video is still rendering in background
+  useEffect(() => {
+    if (!scene || appState !== STATES.SCENE) return;
+    if (scene.panels?.[0]?.video_url) return; // already have it
+    const id = setInterval(async () => {
+      try {
+        const data = await apiFetch(`/api/scene/${scene.scene_id}`, {}, 10_000);
+        if (data.panels?.[0]?.video_url) {
+          setScene(data);
+          clearInterval(id);
+        }
+      } catch { /* keep polling silently */ }
+    }, 5_000);
+    return () => clearInterval(id);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scene?.scene_id, scene?.panels?.[0]?.video_url, appState]);
 
   // ── Reference image upload ──────────────────────────────────────────────────
   const handleImageUpload = useCallback(async (e) => {
@@ -203,7 +201,6 @@ export default function App() {
     if (!sceneInput.trim()) return;
     setError(null);
     setAppState(STATES.CLARIFYING);
-    // Track that text was typed if no other modality was set
     if (inputModality === "text" && sceneInput.trim()) setInputModality("text");
     try {
       const data = await apiFetch("/api/scene/clarify", {
@@ -252,103 +249,31 @@ export default function App() {
     } catch (err) {
       clearInterval(interval);
       setError(err.message);
-      setAppState(STATES.CLARIFYING);
+      setAppState(STATES.IDLE);
     }
   };
 
-  // ── HITL Revision Step 1: Fetch proposal (no images) ──────────────────────
-  const handleRequestPreview = async (note) => {
-    if (!scene) return;
+  // ── Quick Cut: directly revise with the given note (no preview step) ───────
+  const handleQuickCut = async (note) => {
+    if (!scene || appState === STATES.REVISING) return;
     setError(null);
-    setPendingNote(note);
-    setAppState(STATES.PREVIEWING_REVISION);
-    try {
-      const proposal = await apiFetch(`/api/scene/${scene.scene_id}/preview-revision`, {
-        method: "POST",
-        body: JSON.stringify({ revision_note: note }),
-      }, TIMEOUTS.preview);
-      setRevisionProposal(proposal);
-      setAppState(STATES.REVIEW_REVISION);
-    } catch (err) {
-      setError(err.message);
-      setAppState(STATES.SCENE);
-      setPendingNote("");
-    }
-  };
-
-  // ── HITL Revision Step 2: Human confirms approved panels → generate ────────
-  const handleConfirmRevision = async (approvedPanels, timestamps = {}) => {
-    if (!scene || approvedPanels.length === 0) return;
-    setError(null);
-    setAffectedPanels(approvedPanels);
-    setRevisionProposal(null);
+    setAffectedPanels([1]);
     setAppState(STATES.REVISING);
     try {
       const data = await apiFetch(`/api/scene/${scene.scene_id}/revise`, {
         method: "POST",
         body: JSON.stringify({
-          revision_note:      pendingNote,
-          approved_panels:    approvedPanels,
-          dialogue_overrides: Object.keys(dialogueEdits).length ? dialogueEdits : undefined,
-          timestamps:         Object.keys(timestamps).length ? timestamps : undefined,
+          revision_note:   note,
+          approved_panels: [1],
         }),
       }, TIMEOUTS.revise);
       setScene(data);
-      setAffectedPanels(data.affected_panels || []);
+      setAffectedPanels(data.affected_panels || [1]);
     } catch (err) {
       setError(err.message);
     } finally {
-      setPendingNote("");
       setAppState(STATES.SCENE);
     }
-  };
-
-  // ── Cancel revision ────────────────────────────────────────────────────────
-  const handleCancelRevision = () => {
-    setRevisionProposal(null);
-    setPendingNote("");
-    setAppState(STATES.SCENE);
-  };
-
-  // ── Pick & Finalize ────────────────────────────────────────────────────────
-  const handleSelectBeat = (panelNum) => {
-    setSelectedBeatNum(panelNum);
-    setPolishNote("");
-    setAppState(STATES.SELECTING);
-  };
-
-  const handleBackToStream = () => {
-    setSelectedBeatNum(null);
-    setPolishNote("");
-    setAppState(STATES.SCENE);
-  };
-
-  const handleFinalize = async () => {
-    if (!scene || !polishNote.trim() || !selectedBeatNum) return;
-    setError(null);
-    setAppState(STATES.FINALIZING);
-    try {
-      const data = await apiFetch(`/api/scene/${scene.scene_id}/finalize`, {
-        method: "POST",
-        body: JSON.stringify({ suite_num: selectedBeatNum, polish_note: polishNote.trim() }),
-      }, TIMEOUTS.revise);
-      setScene(data);
-      setAffectedPanels(data.affected_panels || [selectedBeatNum]);
-      setAppState(STATES.FINAL);
-    } catch (err) {
-      setError(err.message);
-      setAppState(STATES.SELECTING);
-    }
-  };
-  // ── Inline dialogue edit (local + saves to scene state) ───────────────────
-  const handleDialogueEdit = (panelNum, text) => {
-    setDialogueEdits((prev) => ({ ...prev, [panelNum]: text }));
-    setScene((prev) => ({
-      ...prev,
-      panels: prev.panels.map((p) =>
-        p.panel_number === panelNum ? { ...p, dialogue: text } : p
-      ),
-    }));
   };
 
   // ── Reset ──────────────────────────────────────────────────────────────────
@@ -360,18 +285,11 @@ export default function App() {
     setScene(null);
     setError(null);
     setAffectedPanels([]);
-    setRevisionProposal(null);
-    setPendingNote("");
-    setDialogueEdits({});
-    setSelectedBeatNum(null);
-    setPolishNote("");
     setInputModality("text");
     clearRefImage();
   };
 
   // ── Export helpers ─────────────────────────────────────────────────────────
-  const ARC_LABELS_EXPORT = { 1: "ESTABLISH", 2: "ESCALATE", 3: "TENSION", 4: "RESOLVE" };
-
   const exportToObsidian = useCallback(() => {
     if (!scene) return;
     const bm   = scene.beat_map || {};
@@ -407,14 +325,13 @@ export default function App() {
     ];
 
     for (const panel of (scene.panels || [])) {
-      const label = ARC_LABELS_EXPORT[panel.panel_number] || `BEAT ${panel.panel_number}`;
-      lines.push(`## Beat ${panel.panel_number} — ${label}`, "");
+      lines.push(`## Scene Frame`, "");
       if (panel.camera_angle)       lines.push(`📷 *${panel.camera_angle}*`, "");
       if (panel.visual_description) lines.push("**↠ SCENE**", panel.visual_description, "");
       if (panel.dialogue && panel.dialogue !== "[SILENCE]")
         lines.push("**↠ DIALOGUE**", `> "${panel.dialogue}"`, "");
       if (panel.direction_note)     lines.push(`↳ *${panel.direction_note}*`, "");
-      if (panel.image_url)          lines.push(`![Frame ${panel.panel_number}](${panel.image_url})`, "");
+      if (panel.image_url)          lines.push(`![Scene Frame](${panel.image_url})`, "");
       if (panel.video_url)          lines.push(`🎬 [Cinematic Clip](${panel.video_url})`, "");
       if (panel.audio_url)          lines.push(`🎵 [Ambient Score](${panel.audio_url})`, "");
       lines.push("---", "");
@@ -442,8 +359,7 @@ export default function App() {
     text     += `${"─".repeat(40)}\n\n`;
 
     for (const panel of (scene.panels || [])) {
-      const label = ARC_LABELS_EXPORT[panel.panel_number] || `BEAT ${panel.panel_number}`;
-      text += `BEAT ${panel.panel_number}: ${label}\n`;
+      text += `SCENE FRAME\n`;
       if (panel.camera_angle)       text += `Camera: ${panel.camera_angle}\n`;
       if (panel.visual_description) text += `Scene: ${panel.visual_description}\n`;
       if (panel.dialogue)           text += `Dialogue: "${panel.dialogue}"\n`;
@@ -457,11 +373,8 @@ export default function App() {
     setTimeout(() => setNotebookLMCopied(false), 5000);
   }, [scene]);
 
-  const isPreviewing = appState === STATES.PREVIEWING_REVISION;
-  const isRevising   = appState === STATES.REVISING;
-  const isBusy       = isPreviewing || isRevising;
-  const showStream   = [STATES.SCENE, STATES.REVISING, STATES.PREVIEWING_REVISION, STATES.REVIEW_REVISION].includes(appState);
-  const showScene    = showStream; // alias for legacy checks
+  const isRevising = appState === STATES.REVISING;
+  const showStream = [STATES.SCENE, STATES.REVISING].includes(appState);
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
@@ -662,7 +575,7 @@ export default function App() {
         </div>
       )}
 
-      {/* ── PRODUCTION STREAM (scene / revising / review states) ──────── */}
+      {/* ── SCENE / REVISING ── */}
       {showStream && scene && (() => {
         const panel = scene.panels[0];
         if (!panel) return null;
@@ -679,7 +592,12 @@ export default function App() {
               <div className="hero-content">
                 {/* Left: storyboard image */}
                 <div className="hero-image-wrap">
-                  {panel.image_url ? (
+                  {isRegenPanel ? (
+                    <div className="hero-image-placeholder">
+                      <span className="spinner" style={{ width: 40, height: 40 }} />
+                      <span>Regenerating frame…</span>
+                    </div>
+                  ) : panel.image_url ? (
                     <img className="hero-image" src={panel.image_url} alt="Scene frame" />
                   ) : (
                     <div className="hero-image-placeholder">
@@ -697,13 +615,8 @@ export default function App() {
                   <div className="hero-scene-label">↠ SCENE</div>
                   <p className="hero-visual-desc">{panel.visual_description}</p>
                   <div className="hero-scene-label" style={{ marginTop: 16 }}>↠ DIALOGUE</div>
-                  <blockquote
-                    className={`hero-dialogue ${!isRegenPanel ? "editable" : ""}`}
-                    onClick={() => !isRegenPanel && handleDialogueEdit(panel.panel_number, null)}
-                    title={!isRegenPanel ? "Click to edit dialogue" : undefined}
-                  >
+                  <blockquote className="hero-dialogue">
                     {panel.dialogue || "[SILENCE]"}
-                    {!isRegenPanel && <span className="dialogue-edit-hint">✎</span>}
                   </blockquote>
                   {panel.direction_note && (
                     <p className="hero-direction">↳ {panel.direction_note}</p>
@@ -713,11 +626,16 @@ export default function App() {
 
               {/* Video with baked audio */}
               <div className="hero-video-wrap">
-                {panel.video_url ? (
+                {isRegenPanel ? (
+                  <div className="hero-video-pending">
+                    <span className="spinner" style={{ width: 24, height: 24 }} />
+                    <span>Regenerating cinematic clip…</span>
+                  </div>
+                ) : panel.video_url ? (
                   <>
                     <video
                       key={panel.video_url}
-                      className={`hero-video ${isRegenPanel ? "regenerating" : ""}`}
+                      className="hero-video"
                       src={panel.video_url}
                       controls
                       playsInline
@@ -732,28 +650,14 @@ export default function App() {
                   </div>
                 )}
               </div>
-
-              {/* Finalize button */}
-              {appState === STATES.SCENE && (
-                <button
-                  className="btn btn-primary hero-finalize-btn"
-                  onClick={() => handleSelectBeat(panel.panel_number)}
-                >
-                  ✦ Polish This Scene →
-                </button>
-              )}
             </div>
 
-            {/* ── Sidebar: beat map + controls ── */}
+            {/* ── Sidebar: beat map + quick cuts + export ── */}
             <div className="sidebar">
               <BeatMap beatMap={scene.beat_map} />
-              <DirectorNote
-                onPreview={handleRequestPreview}
-                isPreviewing={isPreviewing}
-              />
               <QuickCuts
-                onRevise={handleRequestPreview}
-                isRevising={isBusy}
+                onRevise={handleQuickCut}
+                isRevising={isRevising}
               />
               {/* ── Export bar ── */}
               {appState === STATES.SCENE && (
@@ -777,81 +681,10 @@ export default function App() {
               )}
 
               <div className="new-scene-wrap">
-                <button className="btn btn-ghost" onClick={handleReset} disabled={isBusy}>
+                <button className="btn btn-ghost" onClick={handleReset} disabled={isRevising}>
                   ✦ New Scene
                 </button>
               </div>
-            </div>
-
-            {/* HITL: proposal review overlay */}
-            {appState === STATES.REVIEW_REVISION && revisionProposal && (
-              <RevisionPreview
-                proposal={revisionProposal}
-                panels={scene.panels}
-                onConfirm={handleConfirmRevision}
-                onCancel={handleCancelRevision}
-                isApplying={isRevising}
-              />
-            )}
-
-            {/* HITL: fetching proposal spinner */}
-            {appState === STATES.PREVIEWING_REVISION && (
-              <div className="revision-preview-overlay fade-in">
-                <div className="revision-preview-card rp-loading">
-                  <span className="spinner" style={{ width: 32, height: 32 }} />
-                  <p>Analyzing revision — no images yet…</p>
-                </div>
-              </div>
-            )}
-          </div>
-        );
-      })()}
-
-      {/* ── SELECTING / FINALIZING / FINAL — Pick & Finalize ─────────── */}
-      {[STATES.SELECTING, STATES.FINALIZING, STATES.FINAL].includes(appState) && scene && selectedBeatNum && (() => {
-        const selPanel = scene.panels.find(p => p.panel_number === selectedBeatNum);
-        if (!selPanel) return null;
-        return (
-          <div className="workspace fade-in">
-            {appState === STATES.FINAL && (
-              <div className="final-success-banner">
-                ✦ Scene finalized — Beat {selectedBeatNum} has been polished.
-              </div>
-            )}
-            <div className="workspace-grid workspace-grid--single">
-              <div className="production-stream production-stream--single">
-                {appState === STATES.FINAL ? (
-                  <ProductionBeat
-                    panel={selPanel}
-                    beatIndex={selectedBeatNum}
-                    isRegenerating={false}
-                    canSelect={false}
-                  />
-                ) : (
-                  <FinalEditPanel
-                    panel={selPanel}
-                    beatIndex={selectedBeatNum}
-                    polishNote={polishNote}
-                    setPolishNote={setPolishNote}
-                    onFinalize={handleFinalize}
-                    onBack={handleBackToStream}
-                    isFinalizing={appState === STATES.FINALIZING}
-                  />
-                )}
-              </div>
-              {appState === STATES.FINAL && (
-                <div className="sidebar">
-                  <BeatMap beatMap={scene.beat_map} />
-                  <div className="new-scene-wrap" style={{ flexDirection: "column", gap: 10 }}>
-                    <button className="btn btn-ghost" onClick={handleBackToStream}>
-                      ← Back to full stream
-                    </button>
-                    <button className="btn btn-ghost" onClick={handleReset}>
-                      ✦ New Scene
-                    </button>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         );

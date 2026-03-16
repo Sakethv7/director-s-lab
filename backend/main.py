@@ -9,7 +9,7 @@ from contextlib import asynccontextmanager
 from dotenv import load_dotenv
 load_dotenv()  # no-op on Cloud Run where vars are injected; picks up .env locally
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
@@ -163,10 +163,10 @@ async def clarify(req: ClarifyRequest):
 
 
 @app.post("/api/scene/generate", response_model=SceneResponse)
-async def generate(req: GenerateRequest):
-    """Step 2 — generate full scene (beat map + storyboard panels + images)."""
+async def generate(req: GenerateRequest, background_tasks: BackgroundTasks):
+    """Step 2 — generate scene fast (Gemini + Imagen), kick off Veo in background."""
     try:
-        return await agent.generate_scene(
+        data = await agent.generate_scene(
             scene_id=req.scene_id,
             scene_prompt=req.scene_prompt.strip(),
             clarifying_question=req.clarifying_question.strip(),
@@ -174,6 +174,8 @@ async def generate(req: GenerateRequest):
             reference_image=req.reference_image,
             reference_image_mime=req.reference_image_mime,
         )
+        background_tasks.add_task(agent.generate_video_for_scene, data["scene_id"])
+        return data
     except TimeoutError:
         raise HTTPException(status_code=504, detail="Generation timed out. Please try again.")
     except Exception as exc:
@@ -199,16 +201,23 @@ async def preview_revision(scene_id: str, req: PreviewRevisionRequest):
 
 
 @app.post("/api/scene/{scene_id}/revise", response_model=SceneResponse)
-async def revise(scene_id: str, req: ReviseRequest):
-    """HITL step 2 — regenerates images for human-approved panels only."""
+async def revise(scene_id: str, req: ReviseRequest, background_tasks: BackgroundTasks):
+    """HITL step 2 — regenerates images fast, kicks off Veo in background."""
     try:
-        return await agent.revise_scene(
+        data = await agent.revise_scene(
             scene_id=scene_id,
             revision_note=req.revision_note.strip(),
             approved_panels=req.approved_panels,
             dialogue_overrides=req.dialogue_overrides,
             timestamps=req.timestamps,
         )
+        background_tasks.add_task(
+            agent.revise_video_for_scene,
+            scene_id,
+            req.approved_panels,
+            req.timestamps,
+        )
+        return data
     except ValueError as exc:
         raise HTTPException(status_code=404, detail=str(exc))
     except TimeoutError:
@@ -224,14 +233,26 @@ class FinalizeRequest(BaseModel):
 
 
 @app.post("/api/scene/{scene_id}/finalize", response_model=SceneResponse)
-async def finalize(scene_id: str, req: FinalizeRequest):
-    """Pick & Finalize — apply a final polish note to one selected beat and regenerate its media."""
+async def finalize(scene_id: str, req: FinalizeRequest, background_tasks: BackgroundTasks):
+    """Pick & Finalize — regenerates image fast, kicks off Veo in background."""
     try:
-        return await agent.finalize_scene(
+        data = await agent.finalize_scene(
             scene_id=scene_id,
             suite_num=req.suite_num,
             polish_note=req.polish_note.strip(),
         )
+        # Pass the polished panel from Firestore for the background video task
+        polished_panel = next(
+            (p for p in data["panels"] if p["panel_number"] == req.suite_num), None
+        )
+        if polished_panel:
+            background_tasks.add_task(
+                agent.finalize_video_for_scene,
+                scene_id,
+                req.suite_num,
+                polished_panel,
+            )
+        return data
     except ValueError as exc:
         raise HTTPException(status_code=404, detail=str(exc))
     except TimeoutError:
