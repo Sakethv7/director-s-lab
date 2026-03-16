@@ -13,7 +13,7 @@ Director's Lab is a full-stack AI web app where users pitch a film scene and the
 - **Gemini 2.5 Flash** — scene writing, clarification, revision logic
 - **Imagen 3** — generates panel images
 - **Lyria** — generates ambient audio per panel
-- **Veo 2** — generates a video clip for the final panel
+- **Veo 3.1** — generates a video clip for the final panel
 - **Firestore** — stores every generated scene permanently
 - **Cloud Storage** — hosts the generated images, audio, and video files
 
@@ -27,7 +27,7 @@ The frontend is a React app. The backend is a Python FastAPI server.
 |---|---|
 | Frontend | React 18 + Vite, hosted on Firebase Hosting |
 | Backend | FastAPI (Python 3.12), deployed on Cloud Run |
-| AI | Gemini 2.5 Flash, Imagen 3, Lyria, Veo 2 via Vertex AI |
+| AI | Gemini 2.5 Flash, Imagen 3, Lyria, Veo 3.1 via Vertex AI |
 | Database | Firestore (`scenes` collection) |
 | File Storage | Google Cloud Storage (`gemini-hackathon-2026-bucket`) |
 
@@ -158,7 +158,7 @@ Firebase Hosting automatically rewrites `/api/**` requests to the Cloud Run back
 ## Service Account Roles Required
 
 The service account attached to Cloud Run needs these IAM roles:
-- `Vertex AI User` — for Imagen 3, Lyria, Veo 2
+- `Vertex AI User` — for Imagen 3, Lyria, Veo 3.1
 - `Cloud Datastore User` — for Firestore read/write
 - `Storage Object Admin` — for GCS upload and public URL access
 

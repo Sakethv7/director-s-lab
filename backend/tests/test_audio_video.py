@@ -5,7 +5,7 @@ Covers the four internal helpers in agent.py that handle media generation:
 
   _generate_audio_bytes      Lyria ambient score via Vertex AI REST
   _tts_bytes                 Gemini native TTS (dialogue → WAV)
-  _generate_video_bytes      Veo 2 long-running operation via Vertex AI REST
+  _generate_video_bytes      Veo 3.1 long-running operation via Vertex AI REST
   _generate_video_with_audio ffmpeg merge of Veo + Lyria + TTS
 
 And the public generate_scene() function tested with a reference_image input
@@ -377,7 +377,7 @@ class TestTtsBytes:
 # ---------------------------------------------------------------------------
 
 class TestGenerateVideoBytes:
-    """Veo 2 long-running video generation via Vertex AI REST API."""
+    """Veo 3.1 long-running video generation via Vertex AI REST API."""
 
     async def test_returns_mp4_bytes_on_success(self):
         with patch("google.auth.default", return_value=(_mock_creds(), "proj")), \

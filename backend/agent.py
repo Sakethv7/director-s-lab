@@ -453,7 +453,7 @@ async def _generate_audio_bytes(audio_mood: str, panel_num: int) -> bytes:
 
 async def _generate_video_bytes(video_prompt: str, panel_num: int, delay: float = 0) -> bytes:
     """
-    Generate a short video clip with Veo 2 via Vertex AI long-running REST API.
+    Generate a short video clip with Veo 3.1 via Vertex AI long-running REST API.
     Returns raw MP4 bytes. Falls back to empty bytes on any error.
     """
     import time as _time
@@ -485,7 +485,7 @@ async def _generate_video_bytes(video_prompt: str, panel_num: int, delay: float 
         predict_url = (
             f"https://{location}-aiplatform.googleapis.com/v1/"
             f"projects/{project}/locations/{location}/"
-            f"publishers/google/models/veo-2.0-generate-001:predictLongRunning"
+            f"publishers/google/models/veo-3.1-fast-generate-preview:predictLongRunning"
         )
         payload = {
             "instances":  [{"prompt": video_prompt}],
@@ -505,7 +505,7 @@ async def _generate_video_bytes(video_prompt: str, panel_num: int, delay: float 
         fetch_url = (
             f"https://{location}-aiplatform.googleapis.com/v1/"
             f"projects/{project}/locations/{location}/"
-            f"publishers/google/models/veo-2.0-generate-001:fetchPredictOperation"
+            f"publishers/google/models/veo-3.1-fast-generate-preview:fetchPredictOperation"
         )
         op = {}
         for _ in range(60):

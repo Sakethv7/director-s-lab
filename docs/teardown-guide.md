@@ -13,7 +13,7 @@ Run these commands in the **Google Cloud SDK Shell**.
 | Firebase Hosting | Storage + bandwidth (free tier is generous) |
 | Firestore | Reads/writes/storage (free tier covers most usage) |
 | Cloud Storage (GCS) | Storage + bandwidth |
-| Vertex AI (Imagen 3, Lyria, Veo 2) | Per generation call |
+| Vertex AI (Imagen 3, Lyria, Veo 3.1) | Per generation call |
 | Cloud Build | Per build minute (first 120 min/day free) |
 | Artifact Registry | Container image storage |
 
