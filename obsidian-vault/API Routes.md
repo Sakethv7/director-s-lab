@@ -17,7 +17,7 @@ Gemini asks one cinematic clarifying question. Optionally accepts a reference im
 **Input:** `{ scene_id, clarification, scene_prompt, ref_image_b64?, ref_image_mime? }`
 **Output:** `SceneResponse`
 
-Full parallel generation: Gemini text → Imagen 3 × 4 → Lyria × 4 → Gemini TTS × 4 → Veo 2 × 1 → ffmpeg merge.
+Full parallel generation: Gemini text → Imagen 3 × 4 → Lyria × 4 → Gemini TTS × 4 → Veo 3.1 × 1 → ffmpeg merge.
 
 ### `POST /api/scene/{scene_id}/preview-revision`
 **Input:** `{ revision_note }`

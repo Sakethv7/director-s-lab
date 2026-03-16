@@ -41,7 +41,7 @@ npm run lint      # ESLint
 | AI — Text  | Google Gemini 2.5 Flash (`gemini-2.5-flash`) via `google-genai` SDK |
 | AI — Image | Imagen 3 (`imagen-3.0-generate-001`) via Vertex AI  |
 | AI — Audio | Lyria (`lyria-002`) via Vertex AI REST API          |
-| AI — Video | Veo 2 (`veo-2.0-generate-001`) via Vertex AI LRO REST API |
+| AI — Video | Veo 3.1 (`veo-3.1-fast-generate-preview`) via Vertex AI LRO REST API |
 | Database   | Firestore (`scenes` collection)                     |
 | Storage    | Cloud Storage (images/audio/video, publicly readable) |
 | Frontend   | React 18 + Vite, plain CSS (no Tailwind, no CSS-in-JS) |
@@ -121,7 +121,7 @@ GET  /api/scene/{scene_id}                     → SceneResponse
 ```
 - `image_url` — Imagen 3 PNG, all 4 panels
 - `audio_url` — Lyria WAV ambient score, all 4 panels (empty string on failure)
-- `video_url` — Veo 2 MP4 clip, panel 4 only (empty string on failure)
+- `video_url` — Veo 3.1 MP4 clip, panel 4 only (empty string on failure)
 
 ### PreviewRevisionResponse
 ```python

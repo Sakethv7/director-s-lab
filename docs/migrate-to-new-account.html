@@ -249,7 +249,7 @@
       <tr><td>Firebase Hosting</td><td>Hosts the React frontend</td><td>Free tier is generous</td></tr>
       <tr><td>Firestore</td><td>Stores every generated scene permanently</td><td>Free tier covers low usage</td></tr>
       <tr><td>Cloud Storage (GCS)</td><td>Stores generated images, audio, video files</td><td>Yes — storage + bandwidth</td></tr>
-      <tr><td>Vertex AI (Imagen 3, Lyria, Veo 2)</td><td>AI generation for images, audio, video</td><td>Yes — no free tier</td></tr>
+      <tr><td>Vertex AI (Imagen 3, Lyria, Veo 3.1)</td><td>AI generation for images, audio, video</td><td>Yes — no free tier</td></tr>
       <tr><td>Gemini 2.5 Flash</td><td>Scene writing, clarification, revision logic</td><td>Free tier via AI Studio key</td></tr>
       <tr><td>Artifact Registry</td><td>Stores Docker container images built by Cloud Build</td><td>Small storage cost</td></tr>
     </tbody>
@@ -257,7 +257,7 @@
 
   <div class="callout callout-warn">
     <div class="callout-icon">⚠</div>
-    <div><strong>Vertex AI (Imagen 3, Lyria, Veo 2) has no free tier.</strong> Free credits from a new GCP account ($300 trial credit) will cover these costs. Once credits run out, charges apply per generation call.</div>
+    <div><strong>Vertex AI (Imagen 3, Lyria, Veo 3.1) has no free tier.</strong> Free credits from a new GCP account ($300 trial credit) will cover these costs. Once credits run out, charges apply per generation call.</div>
   </div>
 
   <!-- PHASE 1 -->
@@ -416,7 +416,7 @@ gsutil iam ch allUsers:objectViewer gs://gemini-hackathon-2026-bucket</pre>
         <li>Name it: <code>directors-lab-sa</code></li>
         <li>Grant it these roles:
           <ul>
-            <li><strong>Vertex AI User</strong> — for Imagen 3, Lyria, Veo 2</li>
+            <li><strong>Vertex AI User</strong> — for Imagen 3, Lyria, Veo 3.1</li>
             <li><strong>Cloud Datastore User</strong> — for Firestore read/write</li>
             <li><strong>Storage Object Admin</strong> — for GCS upload and public URL access</li>
           </ul>
@@ -618,7 +618,7 @@ firebase deploy --only hosting</pre>
         <li><div class="checkbox"></div><span>Frontend loads at <code>https://gemini-live-agent-challenge-26.web.app</code></span></li>
         <li><div class="checkbox"></div><span>Pitch a scene → clarifying question appears (Gemini is working)</span></li>
         <li><div class="checkbox"></div><span>Answer the question → storyboard frame generates with an image (Imagen 3 is working)</span></li>
-        <li><div class="checkbox"></div><span>Video clip appears on the storyboard (Veo 2 is working)</span></li>
+        <li><div class="checkbox"></div><span>Video clip appears on the storyboard (Veo 3.1 is working)</span></li>
         <li><div class="checkbox"></div><span>Scene is saved — refresh the page, scene still loads (Firestore is working)</span></li>
         <li><div class="checkbox"></div><span>Director's Note revision regenerates the video (full loop working)</span></li>
       </ul>

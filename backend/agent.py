@@ -453,7 +453,7 @@ async def _generate_audio_bytes(audio_mood: str, panel_num: int) -> bytes:
 
 async def _generate_video_bytes(video_prompt: str, panel_num: int, delay: float = 0) -> bytes:
     """
-    Generate a short video clip with Veo 2 via Vertex AI long-running REST API.
+    Generate a short video clip with Veo 3.1 via Vertex AI long-running REST API.
     Returns raw MP4 bytes. Falls back to empty bytes on any error.
     """
     import time as _time

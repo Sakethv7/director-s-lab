@@ -10,7 +10,7 @@ FastAPI (Cloud Run, port 8080)
   ├── Imagen 3          — storyboard frames (4 panels)
   ├── Lyria             — ambient WAV score per panel
   ├── Gemini TTS        — character dialogue (gender-matched voice)
-  ├── Veo 2             — 8s cinematic clip → extended to 15s via ffmpeg tpad
+  ├── Veo 3.1             — 8s cinematic clip → extended to 15s via ffmpeg tpad
   ├── Firestore         — scene persistence (scenes collection)
   └── Cloud Storage     — PNG / WAV / MP4 public URLs
 ```
@@ -23,7 +23,7 @@ FastAPI (Cloud Run, port 8080)
 | Image generation | `imagen-3.0-generate-001` | 4 storyboard frames per scene |
 | Music | `lyria-002` | Ambient WAV, mood-matched |
 | Voice TTS | `gemini-2.5-flash-preview-tts` | Charon ♂ / Aoede ♀ gender-matched |
-| Video | `veo-2.0-generate-001` | 8s clip + ffmpeg freeze-extend to 15s |
+| Video | `veo-3.1-fast-generate-preview` | 8s clip + ffmpeg freeze-extend to 15s |
 
 ## Data Flow
 
@@ -35,7 +35,7 @@ FastAPI (Cloud Run, port 8080)
    - Imagen 3 × 4 panels (parallel)
    - Lyria × 4 panels (parallel)
    - Gemini TTS × 4 panels
-   - Veo 2 × 1 clip (panel 4)
+   - Veo 3.1 × 1 clip (panel 4)
    - ffmpeg merges video + ambient + TTS → 15s MP4
 5. All media uploaded to GCS → deterministic public URLs
 6. Scene saved to Firestore → returned to frontend

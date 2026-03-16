@@ -87,7 +87,7 @@ He's been watching her for three nights. This is the last time.
 
 **S:** "Gemini TTS voicing the dialogue. Gender-matched voices — Fenrir for the male character, Kore for the female. Real synthesized performance, with acting-style direction baked into the prompt. Not text-to-speech defaults."
 
-**A:** "And Veo 2 rendering a 15-second cinematic clip — with the Lyria score and the TTS voice merged together via ffmpeg in the cloud. This is what real generation latency looks like. Not a cached demo."
+**A:** "And Veo 3.1 rendering a 15-second cinematic clip — with the Lyria score and the TTS voice merged together via ffmpeg in the cloud. This is what real generation latency looks like. Not a cached demo."
 
 *If still waiting:*
 
@@ -179,7 +179,7 @@ He's been watching her for three nights. This is the last time.
 
 *Click Observability → Metrics*
 
-**A:** "Request count — those spikes are the Gemini, Imagen, and Veo calls from the demo you just watched. Latency over one minute on some requests — that's Veo 2 rendering a cinematic clip in the cloud. Real latency. Real generation."
+**A:** "Request count — those spikes are the Gemini, Imagen, and Veo calls from the demo you just watched. Latency over one minute on some requests — that's Veo 3.1 rendering a cinematic clip in the cloud. Real latency. Real generation."
 
 *Click Logs in the left sidebar*
 
@@ -193,7 +193,7 @@ He's been watching her for three nights. This is the last time.
 
 *Scroll up to show the wall of Vertex AI POST requests.*
 
-**A:** "Every one of these POST requests is a Vertex AI call — Imagen 3, Lyria, Veo 2 — logged in sequence. Text. Image. Audio. Video. In one pipeline. On Google Cloud."
+**A:** "Every one of these POST requests is a Vertex AI call — Imagen 3, Lyria, Veo 3.1 — logged in sequence. Text. Image. Audio. Video. In one pipeline. On Google Cloud."
 
 ---
 

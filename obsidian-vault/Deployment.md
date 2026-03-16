@@ -32,7 +32,7 @@ gsutil iam ch allUsers:objectViewer gs://$BUCKET
 
 ## Required IAM Roles (service account)
 
-- `Vertex AI User` — Imagen 3, Lyria, Veo 2
+- `Vertex AI User` — Imagen 3, Lyria, Veo 3.1
 - `Cloud Datastore User` — Firestore read/write
 - `Storage Object Admin` — GCS upload + public URL
 

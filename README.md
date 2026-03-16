@@ -12,7 +12,7 @@ You're the writer. Gemini is the director.
 
 1. **Pitch your scene** — type it, speak it, or drop a reference image
 2. **Answer one question** — the director asks a single clarifying question to nail the emotional core
-3. **The director takes over** — Gemini writes the 4-beat arc, Imagen 3 paints each frame, Lyria composes the ambient score, Gemini TTS voices every line, Veo 2 renders the final cinematic clip
+3. **The director takes over** — Gemini writes the 4-beat arc, Imagen 3 paints each frame, Lyria composes the ambient score, Gemini TTS voices every line, Veo 3.1 renders the final cinematic clip
 4. **Stay in control** — write a director's note or hit a Quick Cut to revise; approve only the panels you want re-generated (HITL loop, no surprise Imagen costs)
 
 ---
@@ -26,7 +26,7 @@ You're the writer. Gemini is the director.
 | 🎨 **Storyboard** | 4 panels (Establish → Escalate → Tension → Resolve) with Imagen 3 stills |
 | 🎵 **Ambient score** | Lyria WAV per panel, mood-matched to the scene |
 | 🗣 **Voiced dialogue** | Gemini TTS with gender-matched voices (Charon ♂ / Aoede ♀) |
-| 🎬 **15s cinematic clip** | Veo 2 clip freeze-extended to 15 s, score + voice merged via ffmpeg |
+| 🎬 **15s cinematic clip** | Veo 3.1 clip freeze-extended to 15 s, score + voice merged via ffmpeg |
 | ✏️ **HITL revision loop** | Preview Gemini's proposed edits before any Imagen generation fires |
 
 ---
@@ -47,7 +47,7 @@ You're the writer. Gemini is the director.
 │                                                             │
 │  /api/scene/clarify          → Gemini 2.5 Flash             │
 │  /api/scene/generate         → Gemini + Imagen + Lyria +    │
-│                                 Gemini TTS + Veo 2 + ffmpeg │
+│                                 Gemini TTS + Veo 3.1 + ffmpeg │
 │  /api/scene/{id}/preview-revision → Gemini (text only)      │
 │  /api/scene/{id}/revise      → Gemini + Imagen (approved    │
 │                                 panels only)                │
@@ -56,7 +56,7 @@ You're the writer. Gemini is the director.
    Firestore    Cloud      Vertex AI   Cloud
    (scenes)    Storage    (Imagen 3,   Run
                (PNG/WAV/   Lyria,      (host)
-                MP4)       Veo 2)
+                MP4)       Veo 3.1)
 ```
 
 ---
@@ -69,7 +69,7 @@ You're the writer. Gemini is the director.
 | Storyboard images | Imagen 3 (`imagen-3.0-generate-001`) | Vertex AI |
 | Ambient music score | Lyria (`lyria-002`) | Vertex AI REST |
 | Character voice (TTS) | Gemini TTS (`gemini-2.5-flash-preview-tts`) | Google AI Studio |
-| Cinematic video clip | Veo 2 (`veo-2.0-generate-001`) | Vertex AI LRO REST |
+| Cinematic video clip | Veo 3.1 (`veo-3.1-fast-generate-preview`) | Vertex AI LRO REST |
 | Video + audio merge | ffmpeg (`tpad` freeze-extend to 15 s) | Local subprocess |
 
 ---
