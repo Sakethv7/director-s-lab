@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Director's Lab — Talking Points</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Mono:wght@400;500&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      color: #1a1a1a;
+      background: #fff;
+      line-height: 1.7;
+      padding: 48px 56px;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    /* ── Cover ── */
+    .cover {
+      border-bottom: 3px solid #1a1a1a;
+      padding-bottom: 28px;
+      margin-bottom: 36px;
+    }
+    .cover-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: #888;
+      margin-bottom: 10px;
+    }
+    .cover-title {
+      font-size: 28px;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+    .cover-sub {
+      font-size: 14px;
+      color: #444;
+    }
+    .cover-meta {
+      margin-top: 18px;
+      display: flex;
+      gap: 32px;
+      font-size: 11px;
+      color: #666;
+    }
+    .cover-meta span strong { color: #1a1a1a; }
+
+    /* ── Section headers ── */
+    h2 {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: #888;
+      margin: 36px 0 14px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    /* ── Speaker block ── */
+    .block {
+      margin-bottom: 28px;
+      padding: 18px 20px;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      page-break-inside: avoid;
+    }
+
+    .block-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .speaker-badge {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 20px;
+      flex-shrink: 0;
+    }
+    .saketh { background: #e8f4fd; color: #1a4a7a; }
+    .adi    { background: #fef3e2; color: #7d4a00; }
+    .both   { background: #f0faf0; color: #1a5c1a; }
+
+    .block-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #1a1a1a;
+    }
+
+    /* ── Cue line ── */
+    .cue {
+      font-family: 'Fira Mono', monospace;
+      font-size: 11px;
+      color: #888;
+      background: #f7f7f7;
+      border-left: 3px solid #ccc;
+      padding: 6px 10px;
+      margin-bottom: 10px;
+      border-radius: 0 3px 3px 0;
+    }
+
+    /* ── Spoken lines ── */
+    .line {
+      margin-bottom: 10px;
+      color: #1a1a1a;
+      font-size: 13.5px;
+      line-height: 1.75;
+    }
+    .line:last-child { margin-bottom: 0; }
+
+    /* ── Inline speaker label for shared blocks ── */
+    .who {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-right: 6px;
+      padding: 1px 7px;
+      border-radius: 10px;
+    }
+    .who.s { background: #e8f4fd; color: #1a4a7a; }
+    .who.a { background: #fef3e2; color: #7d4a00; }
+
+    /* ── Closing lines ── */
+    .closing-line {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      padding: 5px 0;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 13.5px;
+    }
+    .closing-line:last-child { border-bottom: none; }
+
+    /* ── Print ── */
+    @media print {
+      body { padding: 24px 32px; }
+      .block { page-break-inside: avoid; }
+      h2 { page-break-after: avoid; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- COVER -->
+  <div class="cover">
+    <div class="cover-label">Director's Lab · Demo Script</div>
+    <div class="cover-title">Talking Points</div>
+    <div class="cover-sub">Gemini Live Agent Challenge · Creative Storyteller Category</div>
+    <div class="cover-meta">
+      <span><strong>Speakers:</strong> Saketh &amp; Adi</span>
+      <span><strong>Target:</strong> Under 4 minutes</span>
+      <span><strong>Date:</strong> March 2026</span>
+    </div>
+  </div>
+
+  <!-- LEGEND -->
+  <div style="display:flex; gap:16px; margin-bottom:32px; font-size:11px; align-items:center;">
+    <span style="color:#888; font-weight:600; text-transform:uppercase; letter-spacing:0.08em;">Legend</span>
+    <span class="speaker-badge saketh">Saketh</span>
+    <span class="speaker-badge adi">Adi</span>
+    <span class="speaker-badge both">Both</span>
+    <span style="font-family:'Fira Mono',monospace; font-size:11px; color:#888; background:#f7f7f7; padding:2px 8px; border-radius:3px;">[ screen cue ]</span>
+  </div>
+
+  <!-- SECTION 0 -->
+  <h2>0 — Introductions</h2>
+
+  <div class="block">
+    <div class="block-header">
+      <span class="speaker-badge both">Both</span>
+      <span class="block-title">Who We Are</span>
+    </div>
+    <div class="cue">[ camera on both speakers — app visible in background ]</div>
+    <div class="closing-line"><span class="who s">Saketh</span> "Hey, I'm Saketh — I worked on the product, the frontend, and the overall user experience."</div>
+    <div class="closing-line" style="margin-top:6px;"><span class="who a">Adi</span> "And I'm Adi — I built the backend, the AI pipeline, and the Google Cloud infrastructure."</div>
+  </div>
+
+  <div class="block">
+    <div class="block-header">
+      <span class="speaker-badge both">Both</span>
+      <span class="block-title">What We Built</span>
+    </div>
+    <div class="cue">[ switch to the app — landing page visible ]</div>
+    <div class="closing-line"><span class="who s">Saketh</span> "Together we built Director's Lab."</div>
+    <div class="closing-line" style="margin-top:6px;"><span class="who a">Adi</span> "A multimodal AI directing agent that takes a scene you describe and turns it into a full storyboard — images, music, voiced dialogue, and a cinematic video clip."</div>
+    <div class="closing-line" style="margin-top:6px;"><span class="who s">Saketh</span> "All powered by Gemini, Vertex AI, and Google Cloud. Let us show you how it works."</div>
+  </div>
+
+  <!-- SECTION 1 -->
+  <h2>1 — Opening</h2>
+
+  <div class="block">
+    <div class="block-header">
+      <span class="speaker-badge saketh">Saketh</span>
+      <span class="block-title">Hook &amp; Introduction</span>
+    </div>
+    <div class="cue">[ landing page visible, nothing typed yet ]</div>
+    <p class="line">"Every director has a scene in their head. The light, the silence, the moment someone doesn't look back. The hard part is getting it out before the feeling dies."</p>
+    <p class="line">"Director's Lab fixes that. You pitch the moment — by text, voice, or a reference image. The AI takes it from there."</p>
+    <div class="cue">[ point to the three input options on screen ]</div>
+    <p class="line">"Built for the Gemini Live Agent Challenge. Everything runs on Google Cloud."</p>
+  </div>
+
+  <!-- SECTION 2 -->
+  <h2>2 — The Problem</h2>
+
+  <div class="block">
+    <div class="block-header">
+      <span class="speaker-badge saketh">Saketh</span>
+      <span class="block-title">Why Existing Tools Fall Short</span>
+    </div>
+    <div class="cue">[ still on landing page ]</div>
+    <p class="line">"Every AI tool today gives you one output. One prompt, one image, done. But directors don't think in single frames — they think in arcs."</p>
+    <p class="line">"Director's Lab builds a 4-beat story structure — Establish, Escalate, Tension, Resolve — and every output, image, audio, video, dialogue, all stays in the same emotional tone."</p>
+    <div class="cue">[ pitch a scene, wait for clarifying question to appear ]</div>
+    <p class="line">"And before it generates anything — it asks one question. Not to stall. To lock in the feeling before the pipeline runs."</p>
+  </div>
+
+  <!-- SECTION 3 -->
+  <h2>3 — The Tech</h2>
+
+  <div class="block">
+    <div class="block-header">
+      <span class="speaker-badge adi">Adi</span>
+      <span class="block-title">Five Models, One Pipeline</span>
+    </div>
+    <div class="cue">[ answer the question, generation begins — stay on loading state ]</div>
+    <p class="line">"Five AI models are running at the same time right now on Vertex AI."</p>
+    <p class="line">"Gemini 2.5 Flash is writing the story arc. Imagen 3 is painting all four frames. Lyria is generating an ambient score. Gemini TTS is voicing every line with gender-matched voices. And Veo 3.1 is rendering a cinematic video clip."</p>
+    <div class="cue">[ scene loads — pause for a beat ]</div>
+    <p class="line">"All five. Same emotional brief. Same register."</p>
+    <div class="cue">[ point to the beat map on the sidebar ]</div>
+    <p class="line">"This beat map — tension, longing, resolve — is what keeps them aligned. It's the shared language every model works from."</p>
+  </div>
+
+  <!-- SECTION 4 -->
+  <h2>4 — What Makes It Different</h2>
+
+  <div class="block">
+    <div class="block-header">
+      <span class="speaker-badge adi">Adi</span>
+      <span class="block-title">The Human-in-the-Loop Revision Loop</span>
+    </div>
+    <div class="cue">[ type a director's note: "make it colder, less dialogue" ]</div>
+    <p class="line">"The human stays in control. The AI never quietly decides what to change."</p>
+    <div class="cue">[ click preview revision — the HITL modal appears ]</div>
+    <p class="line">"Before a single image regenerates, Gemini shows you what it wants to change — which panels, why, and how the beat map shifts."</p>
+    <p class="line">"You see exactly what's going to change before anything regenerates — the beat map shift and why. Then you confirm and it applies the revision."</p>
+    <div class="cue">[ click apply ]</div>
+    <p class="line">"No surprises, no lost work. You're the director — the AI is just the crew."</p>
+  </div>
+
+  <!-- SECTION 5 -->
+  <h2>5 — The Build</h2>
+
+  <div class="block">
+    <div class="block-header">
+      <span class="speaker-badge adi">Adi</span>
+      <span class="block-title">The Hard Parts</span>
+    </div>
+    <div class="cue">[ switch to GCP console — Cloud Run → directors-lab-api → Logs ]</div>
+    <p class="line">"Three things were genuinely tricky to build."</p>
+    <p class="line">"First — Veo 3.1 doesn't return a video instantly. You submit the job and poll until it's done. We built a polling loop with a timeout and a fallback so it never crashes the whole pipeline."</p>
+    <div class="cue">[ scroll to show the wall of Vertex AI POST requests in logs ]</div>
+    <p class="line">"Second — five AI calls running at the same time without any of them blocking the others. We used asyncio and background executors to keep the event loop free."</p>
+    <p class="line">"Third — merging the Lyria score, the TTS voice, and the Veo clip into one 15-second video using ffmpeg, all inside a Cloud Run container with nothing installed locally."</p>
+    <div class="cue">[ zoom into the log line: "Panel 1: 15s video merged (ambient=True voice=True)" ]</div>
+  </div>
+
+  <!-- SECTION 6 -->
+  <h2>6 — What We Learned</h2>
+
+  <div class="block">
+    <div class="block-header">
+      <span class="speaker-badge adi">Adi</span>
+      <span class="block-title">Learnings</span>
+    </div>
+    <div class="cue">[ switch back to the finished scene with video visible ]</div>
+    <p class="line">"The minute-long wait for Veo is actually a good thing — it proves nothing is pre-generated. That's a real model rendering in real time."</p>
+    <p class="line">"Vertex AI's long-running operations pattern makes sense once you work with it — it's the right way to handle jobs that take time, like video generation."</p>
+    <p class="line">"Cloud Run was the perfect fit. It handled the bursty AI workload, scaled down to zero between requests, and we never had to think about servers."</p>
+  </div>
+
+  <div class="block">
+    <div class="block-header">
+      <span class="speaker-badge saketh">Saketh</span>
+      <span class="block-title">The Product Insight</span>
+    </div>
+    <p class="line">"The biggest thing we learned was about the product itself. The HITL loop changed how we thought about what we were building."</p>
+    <p class="line">"This isn't about replacing the director. It's about giving them a crew that actually listens."</p>
+  </div>
+
+  <!-- SECTION 7 -->
+  <h2>7 — Closing</h2>
+
+  <div class="block">
+    <div class="block-header">
+      <span class="speaker-badge both">Both</span>
+      <span class="block-title">Sign-off</span>
+    </div>
+    <div class="cue">[ hold on the full storyboard — all 4 panels, video player visible on panel 4 ]</div>
+
+    <div class="closing-line"><span class="who s">Saketh</span> "Director's Lab."</div>
+    <div class="closing-line"><span class="who a">Adi</span> "Gemini writes it."</div>
+    <div class="closing-line"><span class="who s">Saketh</span> "Imagen paints it."</div>
+    <div class="closing-line"><span class="who a">Adi</span> "Lyria scores it."</div>
+    <div class="closing-line"><span class="who s">Saketh</span> "Veo renders it."</div>
+    <div class="closing-line"><span class="who a">Adi</span> "You direct it."</div>
+
+    <div class="cue" style="margin-top:12px;">[ one beat of silence ]</div>
+    <div class="closing-line"><span class="who" style="background:#f0faf0;color:#1a5c1a;">Both</span> "Shoot, cut, and direct at 24fps."</div>
+  </div>
+
+  <div style="margin-top:48px; padding-top:16px; border-top:1px solid #ddd; font-size:11px; color:#999; text-align:center;">
+    Director's Lab · Talking Points · March 2026 · To save as PDF: File → Print → Save as PDF
+  </div>
+
+</body>
+</html>
