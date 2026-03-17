@@ -669,7 +669,7 @@ async def _generate_video_with_audio(
         return ""  # video failed — nothing to show
 
     def _merge_and_upload() -> str:
-        TARGET_SECS = 15   # extend Veo 8 s clip → 15 s by freezing last frame
+        TARGET_SECS = 8    # Veo produces 8 s clips — no extension needed
 
         with tempfile.TemporaryDirectory() as tmpdir:
             video_path   = os.path.join(tmpdir, "video.mp4")
@@ -691,10 +691,8 @@ async def _generate_video_with_audio(
                 with open(voice_path, "wb") as f:
                     f.write(voice_bytes)
 
-            # Always run ffmpeg — even with no audio — to extend video to TARGET_SECS
-            # Video filter: freeze-frame the last frame for the extra seconds
-            extend_secs = TARGET_SECS - 8   # Veo produces 8 s clips
-            video_filter = f"[0:v]tpad=stop_mode=clone:stop_duration={extend_secs}[vout]"
+            # Run ffmpeg to mux audio into the 8 s Veo clip
+            video_filter = "[0:v]copy[vout]"
 
             inputs       = ["-i", video_path]
             filter_parts = [video_filter]

@@ -570,7 +570,7 @@ export default function App() {
             ))}
           </div>
           <p className="loading-hint">
-            1 storyboard frame · ambient score · voiced dialogue · 15s cinematic clip — takes about 2–3 minutes.
+            1 storyboard frame · ambient score · voiced dialogue · 8s cinematic clip — takes about 2–3 minutes.
           </p>
         </div>
       )}
@@ -641,7 +641,7 @@ export default function App() {
                       playsInline
                       preload="metadata"
                     />
-                    <div className="hero-video-label">🎬 CINEMATIC CLIP · 15s · score + dialogue</div>
+                    <div className="hero-video-label">🎬 CINEMATIC CLIP · 8s · score + dialogue</div>
                   </>
                 ) : (
                   <div className="hero-video-pending">
